@@ -1,9 +1,14 @@
-1. Introduction:
+请将下文翻译为英文，请不要直译：
+一、前言：
 
-SoulEngine-Undertale-Template. This template is created using the LOVE2D (LOVE) engine. Template Author: CI_END.
+UTDR-Template模板。
+此模板使用LOVE2D（LOVE）引擎制作。
+模板作者：CI_END
 
-This template aims to provide a foundation for those transitioning from Create Your Frisk (Unitale), allowing them to explore and get familiar with the new engine. For those who haven’t used the aforementioned CYF (Unitale) engine, don’t worry, we’ve also prepared general tutorials for you.
+此模板旨在给从Create Your Frisk(Unitale)转来的朋友们提供一些探索、使用新引擎的建立基础。
+而如果您之前没有使用过上述的CYF(Unitale)引擎，也不必担心，我们也一样为这些人准备了通用的教程。
 
-2. How to use this document:
 
-Most sections are comprehensive tutorials on specific topics. To explore any particular area, simply open the corresponding file.
+二、如何查询使用本文档：
+
+大部分都是关于某个专题的整体教程，所以想要看哪方面的直接点开对应的文件即可。

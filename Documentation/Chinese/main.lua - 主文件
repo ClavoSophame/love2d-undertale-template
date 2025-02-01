@@ -1,48 +1,44 @@
 main.lua
 
-Most libraries in main.lua are not defined with local, meaning they can be accessed globally.
+main.lua中的绝大部分库（Libraries）都是没有带local的，这意味着它们可以被全局使用。
+例如：global = require("Scripts.Libraries.Tools.GlobalVariables")
+由于在main.lua中我们已经require过了该库
+所以可以在之后的所有库中都可以使用global相关的函数
+例如您可以在其它代码的任何部分使用global:SetVar()函数与global:GetVar()函数
 
-For example:
-global = require("Scripts.Libraries.Tools.GlobalVariables")
 
-Since we’ve already required this library in main.lua, the functions related to global can be used in all other libraries after that.
-For instance, you can use global:SetVar() and global:GetVar() functions anywhere in the code.
 
-Usage of Libraries in main.lua:
+与main.lua中所拥有的所有库的用法均位于此：
 
-global:SetVar(string "name", any value)
-First parameter: The name of the variable.
-Second parameter: The value assigned to the variable (can be of any type).
-Return: nil
+    global:SetVar(string "name", any value)
+    第一个参数：变量的名字
+    第二个参数：赋予该变量的值（可以是任何类型）
+    返回：nil
 
-global:GetVar(string "name")
-First parameter: The name of the variable.
-Return: The value of the variable.
+    global:GetVar(string "name")
+    第一个参数：变量的名字
+    返回：该变量的值
 
-These two functions are often used together to pass variable values between multiple files or share a common value. For example:
-
-Example:
+    这两个函数可以结合起来，多用于多个文件之间互相传递变量的值或者共用一个值，如下：
+    示例：
     -- main.lua --
     global:SetVar("name", "player")
 
     -- scene.lua --
-    print(global:GetVar("name")) -- This will return 'player'
+    print(global:GetVar("name")) -- 该代码会返回player
 
-keyboard:GetState(string "key")
-First parameter: The key detection code.
-Return: The state of the key.
-There are four possible values: 0, 1, 2, -1.
-0 means the key is continuously released,
-1 means the key was just pressed,
-2 means the key is being held,
--1 means the key was just released.
+    
 
-keyboard:Update()
-Return: nil
-Used to update the key functions.
+    keyboard:GetState(string "key")
+    第一个参数：key的检测码。
+    返回：key键的状态。
+    共有四个值0, 1, 2, -1。0表示持续松开的状态、1表示刚按下的状态、2表示长按的状态、-1表示刚松开的状态。
 
-Example:
+    keyboard:Update()
+    返回：nil
+    用于更新按键函数。
 
+    示例：
     -- scene.lua --
     function SCENE.update(dt)
         if (keyboard:GetState("a") == 1) then
@@ -50,18 +46,23 @@ Example:
         end
     end
 
-This code will print true when the "A" key is pressed down.
+    该段代码将在A键刚按下的时候打印一次true。
 
-scenes:Init(string "name")
-First parameter: The name of the scene (the path is fixed from "Scripts/Scenes/").
-Return: nil
-Used to initialize a scene, typically already set up in main.lua.
 
-scenes:Goto(string "name")
-First parameter: The name of the scene to go to (the path is fixed from "Scripts/Scenes/").
-Return: nil
-Used to switch scenes (or "change rooms").
 
-A brief introduction to main.lua:
 
-Any variable in main.lua that is not defined with local can be accessed in other files, thanks to the scenes library.
+    scenes:Init(string "name")
+    第一个参数：场景的名称（固定从路径"Scripts/Scenes/"中取）
+    返回：nil
+    用于初始化一个场景，通常已经在main.lua中被写好。
+
+    scenes:Goto(string "name")
+    第一个参数：要去的场景的名称（固定从路径"Scripts/Scenes/"中取）
+    返回：nil
+    用于跳转场景，也就是所说的“切换房间”。
+
+
+
+对main.lua的一些小介绍：
+
+    main.lua中的变量，只要不带local，在scenes库的加持下，全部都可以被取用到。
