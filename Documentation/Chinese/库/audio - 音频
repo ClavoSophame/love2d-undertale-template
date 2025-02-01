@@ -1,0 +1,11 @@
+AudioManager.lua
+
+AUDIO:NewMusic(string source, boolean loop)
+第一个参数：音乐名
+第二个参数：是否循环播放，一般为true
+从Resources/Musics文件夹中取用。
+
+AUDIO:NewSound(string source, boolean loop)
+第一个参数：音效名
+第二个参数：是否循环播放，一般为false
+从Resources/Sounds文件夹中取用。

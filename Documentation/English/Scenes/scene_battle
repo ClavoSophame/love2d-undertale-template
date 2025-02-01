@@ -1,0 +1,45 @@
+scene_battle.lua
+
+This is the only battle scene in the template, and it's very important.
+If the battle scene is lost, most of the battle UI logic might need to be rewritten.
+
+Customizable Part:
+ENEMIES = {
+    {
+        name = "Poseur",  -- The name displayed for the enemy
+        hp = 100,         -- Current HP
+        maxhp = 1000,     -- Maximum HP
+        killable = true,  -- Whether the enemy dies when hp reaches 0 (can be used for special cases like Sans)
+        xp = 999,         -- XP granted upon enemy defeat
+        gold = 999,       -- Gold granted upon enemy defeat
+        pos = {120, 130}, -- Position of the enemy (for adjusting attack location)
+        maxhurt = 100,    -- Maximum damage that can be dealt to the enemy
+        actions = {
+            "Check", "Talk"  -- Available actions during battle (e.g., ACT options)
+        }
+    }
+}
+name: The name displayed for the enemy.
+hp: The enemy's current HP.
+maxhp: The enemy's maximum HP.
+killable: Whether the enemy will be removed from the battle when its HP is less than or equal to 0 (this can be used for special scenarios like monster last words, e.g., Sans).
+xp, gold: The amount of XP and gold the player gains upon the enemy's defeat.
+pos: The position of the enemy (used to adjust the attack position).
+maxhurt: The maximum amount of damage that can be inflicted on the enemy.
+actions: The available actions for the "ACT" phase (such as "Check" and "Talk").
+Note: You can add multiple enemies here.
+
+Handling Items:
+
+local function HandleItems(item)
+    if (item == "Pie") then
+        BattleDialogue({"* You ate the Pie...", SetItemHPText(19), "[noskip][function:StateTo|ACTIONSELECT]"})
+        player:Heal(19)
+    end
+end
+The HandleItems function manages what happens when an item is selected.
+In the example, selecting the "Pie" item triggers the associated actions.
+If an item has a color, make sure to include that in the condition for checking.
+
+SetItemHPText(number hp): This function sets the HP value and creates a sentence such as "You healed xx HP" or "Your HP is back to full."
+BattleDialogue(table texts): This creates a typewriter effect within the battle box, displaying text like dialogue.

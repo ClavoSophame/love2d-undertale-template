@@ -1,0 +1,92 @@
+Typewriter.lua
+
+Typer:New(table texts, table position, table size, string mode, number layer)
+第一个参数：打字机将要打出来的文本。
+第二个参数：打字机起始位置。
+第三个参数：打字机气泡的大小。
+第四个参数：打字机的模式，有none和manual两种。
+第五个参数：打字机的图层。
+返回一个表。
+
+Typer:NewInst(string text, table position, table size, number layer)
+[[创建一个瞬间打出所有字的打字机。]]
+实不相瞒，在当前版本中，该打字机并没有可用的气泡size，和图层layer。
+
+第一个参数：打字机将要打出来的文本。
+第二个参数：打字机起始位置。
+第三个参数：打字机气泡的大小。
+第四个参数：打字机的图层。
+返回一个表。
+
+
+
+打字机的方法：
+
+    多实例打字机（即以New函数创建的打字机）：
+        typer:Reset()
+        使得打字机从头开始打字。
+
+        typer:SetText(table texts)
+        使得打字机以设置的文本重新打字。
+
+        typer:SetStencil()
+        未实装。
+
+        typer:ShowBubble()
+        显示气泡
+
+        typer:HideBubble()
+        隐藏气泡
+
+        typer:Destroy()
+        销毁打字机
+
+    单实例打字机：
+        typer:SetText(table texts)
+        使得打字机以设置的文本重新打字。
+
+        typer:SetStencil()
+        未实装。
+
+        typer:Destroy()
+        销毁打字机
+
+
+标签方法：
+
+    多实例打字机（即以New函数创建的打字机）：
+        colorRGB:r,g,b 以RGB方式给后面的字符上色。
+        colorHEX:ffffff 以十六进制方式给后面的字符上色。
+        alpha:a 令之后的字符透明度为a
+        font:x  令之后的字体为x
+        size:x  令字号大小为x
+        pause:x 令打字机停顿x
+        pauseALL:x 令后面所有字符均停顿x
+        offsetX:x 令后面字符水平方向上偏移x
+        offsetY:y 令后面字符水平方向上偏移y
+        spaceX:x 令两个相邻字符之间相差x
+        spaceY:y 令两行之间相差y
+        voice:x 设置音效
+        bubble:DIR, p 显示气泡，尾巴位于DIR处，处于气泡线段的p位置（0.5为中点）。
+            DIR:LEFT, RIGHT, UP, DOWN
+        effect:EFF, intensity 令字符附带EFF的效果，强度为intensity。
+            EFF:shake, rotate, none
+        function:func_name|(Params)
+            如果没有Params则为[function:func_name|]
+            若有则为[function:Sum|1, 2, 3]
+        
+        ^ 换行
+        skip 自动跳过
+        !C 恢复原颜色
+        !E 恢复原效果
+        bold 加粗字体
+        !bold 取消加粗
+        !bubble 隐藏气泡
+        END 自毁
+
+    单实例打字机：
+        colorRGB:r,g,b 以RGB方式给后面的字符上色。
+        colorHEX:ffffff 以十六进制方式给后面的字符上色。
+        alpha:a 令之后的字符透明度为a
+        font:x  令之后的字体为x
+        size:x  令字号大小为x

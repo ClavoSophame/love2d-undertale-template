@@ -1,0 +1,34 @@
+GasterBlaster.lua
+
+GB:New(table begin, table final, table angles, number waittime, number firingtime, string sprite_prefix, string sounds_prefix)
+First parameter: Starting position
+Second parameter: Target position
+Third parameter: Starting angle and final angle
+Fourth parameter: Wait time
+Fifth parameter: Firing time
+Sixth parameter: Sprite path (can be left empty, default path will be used)
+Seventh parameter: Sound effect path (can be left empty, default path will be used)
+
+GB:Update()
+Call this function in update().
+
+GB Methods:
+
+GB:Beam(number angle)
+Input the angle to make the GB fire a laser at the specified relative angle.
+[Advanced Use]
+If you want to create a branching laser, for example, where one GB fires three lasers, you can use Beam.
+
+First, you can disable the default laser firing variable by setting:
+gb.default_fire = false
+At this point, the GB will not fire the laser at the 0-degree angle.
+
+If you want to set up additional patterns of bullets when the GB fires, you can use the gb.TimeCall function.
+Each GB has its own individual function. For example:
+
+gb.TimeCall = function()
+    gb:Beam(0)
+    gb:Beam(30)
+    gb:Beam(-30)
+end
+This will create three lasers at different angles when the GB fires.

@@ -1,0 +1,48 @@
+Arenas.lua
+
+Function Definitions:
+
+arenas:Init(table PLAYER)
+First Parameter: The player's table.
+This initializes and returns the main battle frame for the game.
+
+arenas:NewArena(string mode, string shape, number x, number y, number width, number height, number angle)
+First Parameter: The mode ("Plus" or "Minus").
+Second Parameter: The shape ("rectangle" or "circle").
+This function creates a new battle frame based on the specified parameters.
+
+
+Battle Frame Methods:
+    Resize(number width, number height)
+    Resizes the battle frame with animation to the specified width and height.
+
+    ResizeImmediately(number width, number height)
+    Resizes the battle frame directly to the specified width and height without animation.
+
+    Rotate(number speed)
+    Rotates the battle frame with a given speed.
+
+    RotateTo(number angle)
+    Sets the battle frame to a specific angle.
+
+    MoveTo(number x, number y)
+    Moves the battle frame to the specified position (x, y) with animation.
+
+    MoveToImmediately(number x, number y)
+    Moves the battle frame directly to the specified position (x, y) without animation.
+
+    Hide()
+    Hides the battle frame.
+
+    Show()
+    Displays the battle frame.
+
+    Destroy()
+    Destroys the battle frame.
+
+Additional Notes:
+If you want to disable collision detection for a battle frame, each frame has a built-in variable called iscolliding.
+You can directly set it to false to turn off collision detection for that frame.
+Example:
+    a.iscolliding = false
+This will disable collision detection for the battle frame a.

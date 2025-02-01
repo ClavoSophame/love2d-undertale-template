@@ -1,0 +1,10 @@
+Tweens.lua
+
+tweens:AnimCreate(table object, string value, number begin, number final, number time, string tweenname, string tweenmode)
+First parameter: The table returned by the sprite
+Second parameter: The value to be modified
+Third parameter: The starting value
+Fourth parameter: The final value
+Fifth parameter: The duration of the animation
+Sixth parameter: The name of the tween
+Seventh parameter: The mode of the tween

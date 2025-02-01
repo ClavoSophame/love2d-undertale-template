@@ -1,0 +1,56 @@
+scene_battle.lua
+
+是整个模板中唯一一个战斗场景，十分珍贵。
+在失去了战斗场景后绝大部分战斗UI的逻辑可能都需要您重新写。
+
+
+
+
+
+需要自定义的部分：
+
+    ENEMIES = {
+        {
+            name = "Poseur", 
+            hp = 100, maxhp = 1000, 
+            killable = true, 
+            xp = 999, gold = 999, 
+            pos = {120, 130}, 
+            maxhurt = 100, 
+
+            actions = {
+                "Check", "Talk"
+            }
+        }
+    }
+
+    name     -> 敌人显示的名称
+    hp       -> 敌人的血量
+    maxhp    -> 敌人的最大血量
+    killable -> 敌人hp小于0的时候是否退出战斗（可用于进行怪物的遗言，例如Sans）
+    xp, gold -> 敌人死后所给予的EXP和GOLD数目
+    pos      -> 敌人位于什么地方（用于调整攻击位置的）
+    maxhurt  -> 能给敌人造成的最大的伤害数目
+    actions  -> 进行ACT时所能查看的选项
+
+    注：可以添加多个敌人。
+
+
+
+
+
+    local function HandleItems(item)
+        if (item == "Pie") then
+            BattleDialogue({"* You ate the Pie...", SetItemHPText(19), "[noskip][function:StateTo|ACTIONSELECT]"})
+            player:Heal(19)
+        end
+    end
+    HandleItems函数，用于管理物品被选取后的操作。
+    示例中选取的是Pie物品，只要选到Pie物品就执行内部的操作。
+    需注意，若物品带有颜色，请将判定条件内一并带上颜色。
+
+    SetItemHPText(number hp)
+    将对应的HP填入其中，可以使得其选定句子是“你回复了xxHP”还是“你的HP恢复到了最大值。”
+
+    BattleDialogue(table texts)
+    创建一个位于战斗框中的打字机。

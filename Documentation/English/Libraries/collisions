@@ -1,0 +1,11 @@
+Collisions.lua
+
+collision:CheckCollision(table obj1, table obj2)
+First parameter: The table returned by the sprite
+Second parameter: The table returned by the sprite
+Return: Whether a collision occurred
+
+collisions:WithPlayer(table obj, table player)
+First parameter: The table returned by the sprite
+Second parameter: The player's table
+Return: Whether the object collides with the player

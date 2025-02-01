@@ -1,0 +1,37 @@
+GasterBlaster.lua
+
+GB:New(table begin, table final, table angles, number waittime, number firingtime, string sprite_prefix, string sounds_prefix)
+第一个参数：起始位置
+第二个参数：目标位置
+第三个参数：起始角度和最终角度
+第四个参数：等待时间
+第五个参数：开火时间
+第六个参数：贴图路径（可以为空，会用默认的路径）
+第七个参数：音效路径（可以为空，会用默认的路径）
+
+GB:Update()
+放进update()函数即可。
+
+GB方法：
+
+    GB:Beam(number angle)
+    填入角度，令GB以相对angle的角度发射激光。
+
+    [[高级使用]]
+    如果您想做分叉激光，例如一个GB可以喷射出三个激光。
+    那么可以利用Beam
+
+    首先可以选择关掉默认的激光发射变量，即
+    gb.default_fire = false
+    此时gb将不会喷射0角度的激光。
+
+    若想要在gb开火的时候设置一些其他的弹幕则可以使用gb.TimeCall函数
+    每个gb都有单独的一个函数，例如：
+
+    gb.TimeCall = function()
+        gb:Beam(0)
+        gb:Beam(30)
+        gb:Beam(-30)
+    end
+
+    则可以在开火瞬间创建三个不同角度的激光。

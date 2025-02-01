@@ -1,0 +1,70 @@
+sprites:NewSpriteLayer(string "image", number depth)
+第一个参数：贴图的路径（注：需要带后缀.png，.jpg等）
+第二个参数：贴图的图层（只能是数字，数字越大，图层越高）
+返回一个表
+
+sprites:Update()
+通常放在场景的update函数中
+
+sprites:Draw()
+通常放在场景的draw函数中
+
+
+
+sprite方法：
+
+    sprite:MoveSpeed(number x, number y)
+    在一个[[时间点]]中设置一个贴图的固定移动速度。
+
+    sprite:RotateSpeed(number r)
+    在一个[[时间点]]中设置一个贴图的固定旋转速度。
+
+    sprite:Move(number x, number y)
+    移动贴图。
+
+    sprite:MoveTo(number x, number y)
+    移动贴图到某个地方。
+
+    sprite:Scale(number x, number y)
+    使贴图缩放。
+
+    sprite:Remove() 或 sprite:Destroy()
+    使贴图自动清除。
+
+    sprite:SetStencil(table masks, string mode, number value)
+    masks为利用masks:New()方法创建的mask组成的一张表。
+    mode有以下选择方式：
+        "never": 永远不通过测试（模板值不被修改）。
+        "less": 当片段的模板值小于参考值时通过测试。
+        "lequal": 当片段的模板值小于或等于参考值时通过测试。
+        "equal": 当片段的模板值等于参考值时通过测试。
+        "gequal": 当片段的模板值大于或等于参考值时通过测试。
+        "greater": 当片段的模板值大于参考值时通过测试。
+        "notequal": 当片段的模板值不等于参考值时通过测试。
+        "always": 总是通过测试（模板值始终有效）。
+
+    value是一个自然数。
+
+    sprite:NoStencil()
+    关掉遮罩的使用。
+
+    sprite:Shear(number axisX, number axisY)
+    "所谓的拉腿"
+
+    sprite:Set(string path)
+    将贴图设置为路径里的一个图片。
+
+    sprite:SetAnimation(table spriteaux, number frequency)
+    使得贴图从spriteaux中按顺序进行取用图片，并每frequency切换下一张图片
+        其他变量：
+            sprite.animmode
+                贴图的动画模式
+                oneshotempty -> 播放完一次后消失不见
+                oneshot -> 只播放一次
+                其余均为循环播放
+
+            sprite.animindex
+                设定贴图播放到了第几张图片。
+
+    sprite:GetName()
+    直接返回贴图的路径。（使用sprite.path更好一些）

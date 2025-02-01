@@ -1,0 +1,143 @@
+Typewriter.lua
+
+Typer:New(table texts, table position, table size, string mode, number layer)
+First parameter: The text to be typed out by the typewriter.
+Second parameter: The starting position of the typewriter.
+Third parameter: The size of the typewriter bubble.
+Fourth parameter: The mode of the typewriter, which can be "none" or "manual."
+Fifth parameter: The layer of the typewriter.
+Returns a table.
+
+Typer:NewInst(string text, table position, table size, number layer)
+[[Creates a typewriter that types out all text instantly.]]
+Currently, this typewriter does not support bubble size or layer.
+
+First parameter: The text to be typed out by the typewriter.
+Second parameter: The starting position of the typewriter.
+Third parameter: The size of the typewriter bubble.
+Fourth parameter: The layer of the typewriter.
+Returns a table.
+
+Typewriter Methods:
+Multi-instance typewriter (created with the New function):
+
+typer:Reset()
+Resets the typewriter to start typing from the beginning.
+
+typer:SetText(table texts)
+Makes the typewriter type the provided text.
+
+typer:SetStencil()
+Not implemented.
+
+typer:ShowBubble()
+Shows the bubble.
+
+typer:HideBubble()
+Hides the bubble.
+
+typer:Destroy()
+Destroys the typewriter.
+
+Single-instance typewriter:
+
+typer:SetText(table texts)
+Makes the typewriter type the provided text.
+
+typer:SetStencil()
+Not implemented.
+
+typer:Destroy()
+Destroys the typewriter.
+
+Tag Methods:
+Multi-instance typewriter (created with the New function):
+
+colorRGB:r,g,b
+Colors the subsequent characters in RGB.
+
+colorHEX:ffffff
+Colors the subsequent characters in hexadecimal.
+
+alpha:a
+Sets the transparency of subsequent characters to a.
+
+font:x
+Changes the font of the subsequent characters to x.
+
+size:x
+Changes the font size to x.
+
+pause:x
+Pauses the typewriter for x seconds.
+
+pauseALL:x
+Pauses all subsequent characters for x seconds.
+
+offsetX:x
+Offsets the subsequent characters horizontally by x.
+
+offsetY:y
+Offsets the subsequent characters vertically by y.
+
+spaceX:x
+Sets the horizontal space between characters to x.
+
+spaceY:y
+Sets the vertical space between lines to y.
+
+voice:x
+Sets the sound effect to x.
+
+bubble:DIR, p
+Shows the bubble, with the tail at DIR and the position at p along the bubble line (0.5 being the midpoint).
+
+DIR: LEFT, RIGHT, UP, DOWN
+effect:EFF, intensity
+Applies the effect EFF with intensity intensity to the character.
+
+EFF: shake, rotate, none
+function:func_name|(Params)
+If there are no parameters, it will be [function:func_name|].
+If there are parameters, it will be [function:Sum|1, 2, 3].
+
+^
+Creates a new line.
+
+skip
+Automatically skips.
+
+!C
+Resets the color.
+
+!E
+Resets the effect.
+
+bold
+Makes the font bold.
+
+!bold
+Removes bold formatting.
+
+!bubble
+Hides the bubble.
+
+END
+Self-destructs.
+
+Single-instance typewriter:
+
+colorRGB:r,g,b
+Colors the subsequent characters in RGB.
+
+colorHEX:ffffff
+Colors the subsequent characters in hexadecimal.
+
+alpha:a
+Sets the transparency of subsequent characters to a.
+
+font:x
+Changes the font of the subsequent characters to x.
+
+size:x
+Changes the font size to x.

@@ -1,0 +1,46 @@
+Arenas.lua
+
+arenas:Init(table PLAYER)
+第一个参数：玩家的表
+会返回一个战斗框，这也是整个游戏的主战斗框。
+
+arenas:NewArena(string mode, string shape, number x, number y, number width, number height, number angle)
+第一个参数：模式(Plus或者Minus)
+第二个参数：形状(rectangle或circle)
+返回一个战斗框。
+
+战斗框方法：
+    Resize(number width, number height)
+    将战斗框的目标尺寸设置为width height，随动画缩放。
+
+    ResizeImmediately(number width, number height)
+    将战斗框直接缩放至width height。
+
+    Rotate(number speed)
+    给予战斗框一个旋转速度。
+
+    RotateTo(number angle)
+    设置战斗框的角度。
+
+    MoveTo(number x, number y)
+    将战斗框目标位置设置为x, y。
+
+    MoveToImmediately(number x, number y)
+    将战斗框直接设置到x, y。
+
+    Hide()
+    隐藏战斗框。
+
+    Show()
+    显示战斗框。
+
+    Destroy()
+    销毁战斗框。
+
+注：如果想要关掉战斗框的判定
+每个框都有一个自带的变量叫做iscolliding
+可直接设置是否开启判定。
+
+例如：
+a.iscolliding = false
+这将关闭a战斗框的判定。

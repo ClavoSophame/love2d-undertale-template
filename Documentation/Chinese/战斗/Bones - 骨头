@@ -1,0 +1,78 @@
+Bones.lua
+
+Bones:New2D(string whose, number length)
+第一个参数：谁的骨头(Sans 或者 Papyrus)
+第二个参数：骨头的长度
+返回一个骨头表。
+
+Bones:New3D(table points)
+第一个参数：立体图形的点集
+返回一个骨头表。
+
+Bones:Update()
+请把它放进update函数中。
+
+2D骨头的使用方法：
+
+    SetStencil(masks, mode, value)
+    同sprite。
+
+    Length(number length)
+    直接改变骨头的长度，也可以使用bone.length = length
+
+    Destroy()
+    销毁骨头。
+
+    SetColor(table color)
+    设置骨头的颜色(0 ~ 1)
+
+    SetMode(string mode)
+    设置骨头的攻击模式，例如"normal", "blue", "orange" ...
+
+3D骨头的使用方法：
+
+    Link(whose, point_1, point_2)
+    创建一个2D的骨头，选取两个点位进行连接。
+
+    Rotate(string axis, number angle)
+    让立体图形的角度绕某个轴增加。
+    axis = "x" | "y" | "z"
+
+    MoveToRelative(number x, number y)
+    可以用于Move。
+
+    MoveTo(number x, number y)
+    将立方体移动到x， y。
+
+    SetStencil(masks, mode, value)
+    给所有骨头设置遮罩，同2D骨。
+
+    Destroy()
+    自毁。
+
+3D骨头示例：
+    local b = Bone:New3D({
+        {320 - 150, 240 - 150, 320 - 150}, 
+        {320 - 150, 240 + 150, 320 - 150}, 
+        {320 + 150, 240 + 150, 320 - 150}, 
+        {320 + 150, 240 - 150, 320 - 150}, 
+        {320 - 150, 240 - 150, 320 + 150}, 
+        {320 - 150, 240 + 150, 320 + 150}, 
+        {320 + 150, 240 + 150, 320 + 150},
+        {320 + 150, 240 - 150, 320 + 150}
+    })
+    b.percent = 0.3
+    b:Link("Sans", 1, 2)
+    b:Link("Sans", 1, 4)
+    b:Link("Sans", 3, 2)
+    b:Link("Sans", 3, 4)
+    b:Link("Sans", 1 + 4, 2 + 4)
+    b:Link("Sans", 1 + 4, 4 + 4)
+    b:Link("Sans", 3 + 4, 2 + 4)
+    b:Link("Sans", 3 + 4, 4 + 4)
+    b:Link("Sans", 1, 5)
+    b:Link("Sans", 2, 6)
+    b:Link("Sans", 3, 7)
+    b:Link("Sans", 4, 8)
+
+这将创建一个立方体。

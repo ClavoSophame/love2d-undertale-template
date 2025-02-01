@@ -1,0 +1,23 @@
+Windows.lua
+
+window.getHandle()
+Returns the hwnd.
+Make sure to call this before performing any other window-related operations.
+Example:
+
+local hwnd = window.getHandle()
+window.setTransparency(hwnd, number alpha)
+First parameter: The hwnd obtained from window.getHandle().
+Second parameter: The transparency level (0 to 255).
+This sets the window's transparency, where alpha determines the level.
+
+window.setBackgroundTransparent(hwnd, number colorKey, number alpha)
+First parameter: The hwnd obtained from window.getHandle().
+Second parameter: A hexadecimal color (e.g., 0x000000) to replace in the window. This will make any pixels matching the color transparent.
+Third parameter: The transparency level (0 to 255).
+This sets the window's background to be transparent, keeping other elements visible.
+
+Example:
+
+window.setBackgroundTransparent(hwnd, 0x000000)
+This will make the background color transparent, leaving other elements unaffected.

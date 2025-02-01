@@ -1,0 +1,11 @@
+AudioManager.lua
+
+AUDIO:NewMusic(string source, boolean loop)
+First parameter: Music name
+Second parameter: Whether to loop the music (usually true)
+The music is loaded from the Resources/Musics folder.
+
+AUDIO:NewSound(string source, boolean loop)
+First parameter: Sound effect name
+Second parameter: Whether to loop the sound (usually false)
+The sound effect is loaded from the Resources/Sounds folder.

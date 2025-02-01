@@ -1,0 +1,11 @@
+Collisions.lua
+
+collision:CheckCollision(table obj1, table obj2)
+第一个参数：sprite返回的表
+第二个参数：sprite返回的表
+返回：是否碰撞
+
+collisions:WithPlayer(table obj, table player)
+第一个参数：sprite返回的表
+第二个参数：玩家的表
+返回：物体是否和玩家发生碰撞

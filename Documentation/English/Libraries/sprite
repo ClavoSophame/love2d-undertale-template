@@ -1,0 +1,65 @@
+sprites:NewSpriteLayer(string "image", number depth)
+First parameter: The path of the image (Note: include file extension, e.g., .png, .jpg).
+Second parameter: The layer depth for the image (must be a number, with higher numbers indicating higher layers).
+Return: A table.
+
+sprites:Update()
+Typically called in the scene's update function.
+
+sprites:Draw()
+Typically called in the scene's draw function.
+
+sprite Methods:
+
+sprite:MoveSpeed(number x, number y)
+Set a fixed movement speed for the sprite at a specific time point.
+
+sprite:RotateSpeed(number r)
+Set a fixed rotation speed for the sprite at a specific time point.
+
+sprite:Move(number x, number y)
+Move the sprite.
+
+sprite:MoveTo(number x, number y)
+Move the sprite to a specific location.
+
+sprite:Scale(number x, number y)
+Scale the sprite.
+
+sprite:Remove() or sprite:Destroy()
+Automatically remove the sprite.
+
+sprite:SetStencil(table masks, string mode, number value)
+masks is a table of masks created using masks:New().
+mode has the following options:
+
+"never": Never pass the test (template value is not modified).
+"less": Pass the test when the fragment's template value is less than the reference value.
+"lequal": Pass the test when the fragment's template value is less than or equal to the reference value.
+"equal": Pass the test when the fragment's template value equals the reference value.
+"gequal": Pass the test when the fragment's template value is greater than or equal to the reference value.
+"greater": Pass the test when the fragment's template value is greater than the reference value.
+"notequal": Pass the test when the fragment's template value is not equal to the reference value.
+"always": Always pass the test (template value is always valid).
+value is a natural number.
+
+sprite:NoStencil()
+Disable the use of masks.
+
+sprite:Shear(number axisX, number axisY)
+Apply "shearing" transformation to the sprite.
+
+sprite:Set(string path)
+Set the sprite's image to the one at the specified path.
+
+sprite:SetAnimation(table spriteaux, number frequency)
+Make the sprite cycle through images from spriteaux in order, changing to the next image every frequency frames.
+Other variables:
+
+sprite.animmode: The animation mode of the sprite.
+oneshotempty: Play once and disappear.
+oneshot: Play once.
+Others are looped animations.
+sprite.animindex: The index of the current image in the animation sequence.
+sprite:GetName()
+Returns the path of the sprite's image (using sprite.path is preferred).

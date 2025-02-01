@@ -1,0 +1,82 @@
+Bones.lua
+
+Function Definitions:
+
+Bones:New2D(string whose, number length)
+First Parameter: The character whose bones are being created (e.g., "Sans" or "Papyrus").
+Second Parameter: The length of the bone.
+This function returns a 2D bone object.
+
+Bones:New3D(table points)
+First Parameter: A table containing the points of a 3D shape.
+This function returns a 3D bone object.
+Bones:Update()
+This function should be placed in the update function to update the bone’s state.
+
+
+
+2D Bone Methods:
+    SetStencil(masks, mode, value)
+    Similar to the sprite method, used for setting masks for bones.
+
+    Length(number length)
+    Changes the bone’s length. You can also use bone.length = length directly.
+
+    Destroy()
+    Destroys the bone.
+
+    SetColor(table color)
+    Sets the bone’s color. The color values range from 0 to 1.
+
+    SetMode(string mode)
+    Sets the bone’s attack mode. Examples include "normal", "blue", "orange", etc.
+
+
+
+3D Bone Methods:
+    Link(whose, point_1, point_2)
+    Links two points of a 2D bone (between two points in the 3D space).
+
+    Rotate(string axis, number angle)
+    Rotates the 3D bone around a specified axis (x, y, or z) by a certain angle.
+
+    MoveToRelative(number x, number y)
+    Moves the 3D bone relative to its current position.
+
+    MoveTo(number x, number y)
+    Moves the 3D bone to the specified coordinates (x, y).
+
+    SetStencil(masks, mode, value)
+    Similar to the 2D bone, this applies masks to all bones.
+
+    Destroy()
+    Destroys the 3D bone.
+
+
+    
+Example of 3D Bone Usage:
+local b = Bone:New3D({
+    {320 - 150, 240 - 150, 320 - 150}, 
+    {320 - 150, 240 + 150, 320 - 150}, 
+    {320 + 150, 240 + 150, 320 - 150}, 
+    {320 + 150, 240 - 150, 320 - 150}, 
+    {320 - 150, 240 - 150, 320 + 150}, 
+    {320 - 150, 240 + 150, 320 + 150}, 
+    {320 + 150, 240 + 150, 320 + 150},
+    {320 + 150, 240 - 150, 320 + 150}
+})
+
+b.percent = 0.3
+b:Link("Sans", 1, 2)
+b:Link("Sans", 1, 4)
+b:Link("Sans", 3, 2)
+b:Link("Sans", 3, 4)
+b:Link("Sans", 1 + 4, 2 + 4)
+b:Link("Sans", 1 + 4, 4 + 4)
+b:Link("Sans", 3 + 4, 2 + 4)
+b:Link("Sans", 3 + 4, 4 + 4)
+b:Link("Sans", 1, 5)
+b:Link("Sans", 2, 6)
+b:Link("Sans", 3, 7)
+b:Link("Sans", 4, 8)
+This creates a 3D cube using the provided points and links.

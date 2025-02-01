@@ -1,0 +1,11 @@
+GlobalVariables.lua
+
+global:SetVar(string name, any value)
+第一个参数：变量名
+第二个参数：变量的值
+返回：nil
+设置一个全局变量。
+
+global:GetVar(string name)
+第一个参数：变量名
+返回：该变量的值

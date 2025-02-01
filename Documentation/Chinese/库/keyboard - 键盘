@@ -1,0 +1,20 @@
+Keyboard.lua
+
+Keyboard:GetState(string key)
+第一个参数：key的scancode
+返回按键的状态。
+
+Keyboard:ReturnText()
+返回打出的文本
+
+示例：
+    local text = Keyboard:ReturnText()
+
+这将让text随着打出来的字增加而增加
+
+
+如果想要删掉text中的文字可以检测退格键
+示例：
+    if (Keyboard:GetState("backspace") == 1) then
+        text = text:sub(1, -2)
+    end

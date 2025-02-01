@@ -1,0 +1,10 @@
+Tweens.lua
+
+tweens:AnimCreate(table object, string value, number begin, number final, number time, string tweenname, string tweenmode)
+第一个参数：sprite返回的表
+第二个参数：要修改的值
+第三个参数：开始的值
+第四个参数：最终的值
+第五个参数：动画持续时间
+第六个参数：缓动名字
+第七个参数：模式

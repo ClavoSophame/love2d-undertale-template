@@ -1,0 +1,67 @@
+main.lua
+
+Most libraries in main.lua are not defined with local, meaning they can be accessed globally.
+
+For example:
+global = require("Scripts.Libraries.Tools.GlobalVariables")
+
+Since we’ve already required this library in main.lua, the functions related to global can be used in all other libraries after that.
+For instance, you can use global:SetVar() and global:GetVar() functions anywhere in the code.
+
+Usage of Libraries in main.lua:
+
+global:SetVar(string "name", any value)
+First parameter: The name of the variable.
+Second parameter: The value assigned to the variable (can be of any type).
+Return: nil
+
+global:GetVar(string "name")
+First parameter: The name of the variable.
+Return: The value of the variable.
+
+These two functions are often used together to pass variable values between multiple files or share a common value. For example:
+
+Example:
+    -- main.lua --
+    global:SetVar("name", "player")
+
+    -- scene.lua --
+    print(global:GetVar("name")) -- This will return 'player'
+
+keyboard:GetState(string "key")
+First parameter: The key detection code.
+Return: The state of the key.
+There are four possible values: 0, 1, 2, -1.
+0 means the key is continuously released,
+1 means the key was just pressed,
+2 means the key is being held,
+-1 means the key was just released.
+
+keyboard:Update()
+Return: nil
+Used to update the key functions.
+
+Example:
+
+    -- scene.lua --
+    function SCENE.update(dt)
+        if (keyboard:GetState("a") == 1) then
+            print(true)
+        end
+    end
+
+This code will print true when the "A" key is pressed down.
+
+scenes:Init(string "name")
+First parameter: The name of the scene (the path is fixed from "Scripts/Scenes/").
+Return: nil
+Used to initialize a scene, typically already set up in main.lua.
+
+scenes:Goto(string "name")
+First parameter: The name of the scene to go to (the path is fixed from "Scripts/Scenes/").
+Return: nil
+Used to switch scenes (or "change rooms").
+
+A brief introduction to main.lua:
+
+Any variable in main.lua that is not defined with local can be accessed in other files, thanks to the scenes library.

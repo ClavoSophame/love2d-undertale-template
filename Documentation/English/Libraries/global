@@ -1,0 +1,11 @@
+GlobalVariables.lua
+
+global:SetVar(string name, any value)
+First parameter: The name of the variable
+Second parameter: The value of the variable
+Return: nil
+Sets a global variable.
+
+global:GetVar(string name)
+First parameter: The name of the variable
+Return: The value of the variable

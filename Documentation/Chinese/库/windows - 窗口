@@ -1,0 +1,20 @@
+Windows.lua
+
+window.getHandle()
+返回hwnd
+请在对窗口进行其他操作前执行这一步操作
+local hwnd = window.getHandle()
+
+window.setTransparency(hwnd, number alpha)
+第一个参数：上述代码获取的hwnd
+第二个参数：透明度(0 ~ 255)
+设置一个透明窗口，可调alpha
+
+window.setBackgroundTransparent(hwnd, number colorKey, number alpha)
+第一个参数：上述代码获取的hwnd
+第二个参数：十六进制数字，如0x000000，这将把黑色的都替换掉。
+第三个参数：透明度(0 ~ 255)
+将窗口的背景透明，保留上面的其他元素。
+
+window.setBackgroundTransparent(hwnd, 0x000000)
+这将替换掉背景的颜色。

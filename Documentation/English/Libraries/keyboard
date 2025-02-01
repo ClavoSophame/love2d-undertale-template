@@ -1,0 +1,21 @@
+Keyboard.lua
+
+Keyboard:GetState(string key)
+First parameter: The key's scancode
+Return: The state of the key.
+
+Keyboard:ReturnText()
+Return: The text that has been typed.
+
+Example:
+
+local text = Keyboard:ReturnText()
+This will make the text variable grow as you type.
+
+If you want to delete characters from the text, you can check for the backspace key.
+
+Example:
+
+if (Keyboard:GetState("backspace") == 1) then
+    text = text:sub(1, -2)
+end
