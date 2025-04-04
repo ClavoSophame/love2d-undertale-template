@@ -17,3 +17,7 @@ This template is designed for LOVE2D version **11.3**, and future updates will b
     - If the necessary launch plugin is not installed, to run the game, simply drag the game folder and open it with love.exe or lovec.exe.
 
 - **On mobile**, you can use [MT Manager](https://mt2.cn) or any other file management app of your choice to assist in game development and testing.
+
+# 🌍 Community
+- 🎮 Discord Server: Join [Here](https://discord.gg/QeCmVMX7Mk).
+- 💬 QQ Group: 626073642.
