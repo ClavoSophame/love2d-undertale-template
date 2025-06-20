@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>碰撞</h1>
+        <p>
+            ……你是否已经厌倦了Create Your Frisk的10*10超大的碰撞？<br>
+            你是否已经厌倦了需要自己手写碰撞代码，最后还很难算对的事情？<br>
+            <strong>SoulEngine</strong>提供了手算的碰撞系统，你可以使用它来创建你想要的碰撞效果。
+        </p>
+
+        <h2>碰撞图形的初始化</h2>
+        <p>
+            首先，你需要初始化碰撞图形。<br>
+            也就是说你需要传输一些数据，来定义碰撞图形。<br><br>
+
+            我们将使用<code class="language-lua">collisions.FollowShape(sprite)</code>来初始化碰撞图形。
+            下面是初始化一个碰撞图形的例子：
+            <pre>
+                <code class="language-lua">
+                    -- 创建贴图
+                    local bullet = sprites.CreateSprite("bullet.png", 1)
+                    local player = sprites.CreateSprite("bullet.png", 1)
+
+                    -- 初始化碰撞图形
+                    local coll1 = collisions.FollowShape(bullet)
+                    local coll2 = collisions.FollowShape(player)
+                </code>
+            </pre>
+            那么对于这个初始化的碰撞图形<strong>coll</strong>，它存储了以下五个变量：
+            <ul>
+                <li><code class="language-lua">coll.x</code>：碰撞图形的X坐标</li>
+                <li><code class="language-lua">coll.y</code>：碰撞图形的Y坐标</li>
+                <li><code class="language-lua">coll.w</code>：碰撞图形的宽度</li>
+                <li><code class="language-lua">coll.h</code>：碰撞图形的高度</li>
+                <li><code class="language-lua">coll.angle</code>：碰撞图形的角度</li>
+            </ul><br>
+            如果你的贴图改变了锚点，不是原先默认的(0.5, 0.5)时，该库会通过矩阵的计算矫正真正的碰撞坐标。<br>
+            <strong>因此不必担心碰撞会出现错误，所有碰撞都是精确计算的。</strong>
+        </p>
+        <h2>碰撞的检测</h2>
+        <p>
+            该库提供了矩形与点、矩形与矩形、椭圆与点、椭圆与矩形、椭圆与椭圆的碰撞检测。<br>
+            <ul>
+                <li><code class="language-lua">collisions.RectangleWithPoint(rectangle, point)</code>：矩形与点的碰撞。</li>
+                <li><code class="language-lua">collisions.RectangleWithRectangle(rectangle1, rectangle2)</code>：矩形与矩形的碰撞。</li>
+                <li><code class="language-lua">collisions.CircleWithPoint(circle, point)</code>：椭圆与点的碰撞。</li>
+                <li><code class="language-lua">collisions.CircleWithRectangle(circle, rectangle)</code>：椭圆与矩形的碰撞。</li>
+                <li><code class="language-lua">collisions.CircleWithCircle(circle1, circle2)</code>：椭圆与椭圆的碰撞。</li>
+            </ul><br>
+            示例：
+            <pre>
+                <code class="language-lua">
+                    function love.update(dt)
+                        -- 检测两个矩形是否碰撞
+                        print(collisions.RectangleWithRectangle(coll1, coll2))
+                    end
+
+                    -- 在SoulEngine中，我们使用的是矩形和点的碰撞。
+                    -- 也就是说，玩家的碰撞变成了1*1 px。
+                    function love.update(dt)
+                        -- 检测矩形和点的碰撞
+                        print(collisions.RectangleWithPoint(coll1, coll2))
+                    end
+                </code>
+            </pre>
+        </p>
+        <h2>更为复杂的碰撞</h2>
+        <p>
+            如果你需要更精确的碰撞检测（如多边形碰撞、弹跳、摩擦力等），可以使用 LOVE2D 内置的 <strong>Box2D 物理引擎</strong>。<br>
+            它比简单的 AABB（轴对齐碰撞）更强大，适用于复杂的物理模拟。
+        </p>
+    
+        <h3>1. 初始化物理世界</h3>
+        <p>
+            首先，你需要创建一个 <strong>物理世界</strong>，并设置重力（也可以填写0, 0）：
+        </p>
+        <pre><code class="language-lua">
+            local world
+    
+            function love.load()
+                -- 初始化物理世界（重力：Y轴向下 300 单位）
+                world = love.physics.newWorld(0, 0, true)
+            end
+    
+            function love.update(dt)
+                -- 更新物理世界（建议传入 dt 以确保稳定模拟）
+                world:update(dt)
+            end
+        </code></pre>
+    
+        <h3>2. 创建物理物体（刚体）</h3>
+        <p>
+            物理物体可以是 <strong>动态的</strong>（受物理影响）、<strong>静态的</strong>（固定不动）或 <strong>运动学的</strong>（可移动但不直接受力影响）。
+        </p>
+        <pre><code class="language-lua">
+            local playerBody, playerShape, playerFixture
+    
+            function love.load()
+                -- 创建一个动态刚体（可移动、受重力影响）
+                assert(world, "物理世界未初始化")
+                playerBody = love.physics.newBody(world, 400, 300, "dynamic") or error("无法创建刚体")
+    
+                -- 定义一个矩形碰撞形状（宽50，高50）
+                playerShape = love.physics.newRectangleShape(50, 50)
+    
+                -- 将形状绑定到刚体，并设置物理属性（密度、摩擦力、弹性）
+                playerFixture = love.physics.newFixture(playerBody, playerShape, 1)
+                playerFixture:setRestitution(0.5)  -- 弹性系数（0=无弹跳，1=完全弹性）
+                playerFixture:setFriction(0.3)    -- 摩擦力（0=无摩擦，1=高摩擦）
+            end
+        </code></pre>
+    
+        <h3>3. 碰撞检测（回调函数）</h3>
+        <p>
+            你可以监听碰撞事件，例如：
+        </p>
+        <pre><code class="language-lua">
+            function beginContact(fixtureA, fixtureB, contact)
+                -- 当两个物体开始碰撞时触发
+                print("碰撞发生！")
+            end
+    
+            function endContact(fixtureA, fixtureB, contact)
+                -- 当两个物体结束碰撞时触发
+                print("碰撞结束！")
+            end
+
+            function preSolve(fixtureA, fixtureB, contact)
+                -- 碰撞解决前调用，可用于修改碰撞属性
+                -- 例如：contact:setEnabled(false) 可以禁用这次碰撞
+            end
+
+            function postSolve(fixtureA, fixtureB, contact, normalImpulse, tangentImpulse)
+                -- 碰撞解决后调用，可获取碰撞力度数据
+            end
+    
+            function love.load()
+                -- 注册碰撞回调
+                world:setCallbacks(beginContact, endContact, preSolve, postSolve)
+            end
+        </code></pre>
+    
+        <h3>4. 渲染物理物体</h3>
+        <p>
+            物理引擎只计算碰撞，你仍然需要手动绘制物体：
+        </p>
+        <pre><code class="language-lua">
+            function love.draw()
+                -- 获取刚体的位置和角度
+                local x, y = playerBody:getPosition()
+                local angle = playerBody:getAngle()
+    
+                -- 绘制矩形（旋转角度由物理引擎计算）
+                love.graphics.push()
+                love.graphics.translate(x, y)
+                love.graphics.rotate(angle)
+                love.graphics.rectangle("fill", -25, -25, 50, 50)
+                love.graphics.pop()
+            end
+        </code></pre>
+    
+        <h3>5. 施加力与冲量</h3>
+        <p>
+            你可以让物体移动或跳跃：
+        </p>
+        <pre><code class="language-lua">
+            function love.keypressed(key)
+                if key == "space" then
+                    -- 施加向上的冲量（模拟跳跃）
+                    playerBody:applyLinearImpulse(0, -500)
+                elseif key == "right" then
+                    -- 施加向右的力
+                    -- 力的单位是牛顿/米/秒²，冲量是牛顿·秒
+                    -- 在LOVE2D中，这些值需要根据你的游戏尺度调整
+                    playerBody:applyForce(200, 0)  -- 约等于20kg物体受到10m/s²的加速度
+                end
+            end
+        </code></pre>
+    </div>
+</body>
+</html>

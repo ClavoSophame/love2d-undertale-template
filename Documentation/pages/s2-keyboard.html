@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .pop {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .oop {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+  
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>输入与输出</h1>
+        <p>
+            玩家不能干预的游戏，可是没办法玩的，所以在这时……<br>
+            <strong>获取到玩家键盘和鼠标、亦或者触屏的操作就显得尤为重要。</strong>
+        </p>
+        <h2>全键表查看</h2>
+        <p>
+            这里面写了所有的按键及其对应的扫描检测id。<br>
+            <a href="../pages/se-keyslist.html">点此文本进入全键表</a>。
+        </p>
+        <h2>键盘的输入与输出</h2>
+        <p>
+            基础函数：
+            <ul>
+                <li><code>keyboard.Bind(name, ...)</code> - 绑定名字和按键，后续可通过检测名字获取其下的所有按键。
+                    <ul>
+                        <li><code>name</code> - 要绑定的名字。</li>
+                        <li><code>...</code> - 要给这个名字绑的所有按键。</li>
+                    </ul>
+                </li>
+                <li><code>keyboard.GetState(key)</code><strong> - 获取按键的状态</strong>
+                    <ul>
+                        <li><code>key</code> - 可以是绑定过的名称，也可以是单个按键。</li>
+                    </ul>
+                    以下为其返回值：
+                    <ul>
+                        <li><code>0</code> - 表示没有按下，但也不是松开的那一瞬间。</li>
+                        <li><code>1</code> - 表示刚刚按下的一瞬间。</li>
+                        <li><code>2</code> - 表示在刚刚按下的一瞬间之后的长按。</li>
+                        <li><code>-1</code> - 表示按键刚刚松开的一瞬间。</li>
+                    </ul>
+                </li>
+                <li><code>keyboard.AllowPlayerInput(bool)</code> - 设置是否允许接受玩家的按键，可搭配后面的AutoPress函数使用。
+                    <ul>
+                        <li><code>bool</code> - 是否允许接受玩家的按键，默认为true。</li>
+                    </ul>
+                </li>
+                <li><code>keyboard.AutoPress(key, duration)</code> - 执行游戏内无玩家干预的自动按键。
+                    <ul>
+                        <li><code>key</code> - 要进行自动操作的按键。</li>
+                        <li><code>duration</code> - 按键被按下的时长。</li>
+                    </ul>
+                </li>
+                <li><code>keyboard.ReturnLetter()</code> - 返回键盘按下的单个字母/字符。</li>
+            </ul>
+            <strong>示例</strong>
+            <pre>
+                <code class="language-lua">
+-- 采用 >0 的方式说明该条件只要按键按下就会被触发。
+if (keyboard.GetState("left") > 0) then
+    bone.x = bone.x - 1
+end
+
+local str = ""
+-- SCENE.UPDATE
+str = str .. keyboard.ReturnLetter()
+if (keyboard.GetState("backspace") == 1) then -- 按下退格键后删除末尾的一个字符。
+    str = str:sub(1, -2)
+end
+                </code>
+            </pre>
+        </p>
+    </div>
+</body>
+</html>

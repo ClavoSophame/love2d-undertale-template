@@ -1,0 +1,11 @@
+extern number threshold;
+extern number softThreshold;
+
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+    vec4 texColor = Texel(texture, texture_coords);
+    float brightness = dot(texColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    
+    float contribution = max(brightness - threshold, 0.0);
+    contribution /= (softThreshold + contribution);
+    return vec4(vec3(1, 1, 1) * contribution, texColor.a);
+}

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .pop {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .oop {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+  
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>战斗场景</h1>
+        <p>
+            此处为整个游戏唯一一个模板自带的战斗场景，如果要修改请提前备份。
+        </p>
+        <h2>要素解释</h2>
+        <p>
+            <strong>场景代码中绝大部分内容是无需修改的，这里只列举一般制作时需要修改的函数等内容。</strong>
+            <ul>
+                <li><code>DefenseEnding()</code> - 每次回合结束之后都会自动执行一次的回调函数。</li>
+                <pre>
+                    <code class="language-lua">
+local function DefenseEnding()
+    print("defense ending") -- 打印“回合结束”字眼，用以确定回合已结束。
+    waveProgress = waveProgress + 1 -- 每次回合结束后progress加一，推进回合进程。
+    if (waveProgress > #nextwaves) then waveProgress = 1 end -- 当大于所有回合后从头开始（此部分逻辑需要手动修改）。
+    battle.nextwave = nextwaves[waveProgress] -- 确定是什么回合。
+end
+                    </code>
+                </pre>
+                <li><code>EnteringState(newstate, oldstate)</code> - 每次切换主状态都会执行一次的函数。</li>
+                <pre>
+                    <code class="language-lua">
+-- 分为newstate与oldstate。
+-- 检测是可以只选择检测刚进入的state（即newstate）。
+-- 也可以选择刚离开的state（oldstate）。
+
+local function EnteringState(newstate, oldstate)
+    if (newstate == "ACTIONSELECT") then
+        battle.mainarena:Resize(565, 130)
+        battle.mainarena:RotateTo(0)
+        battle.mainarena.iscolliding = false
+        if (not oldstate == "DEFENDING") then
+            encounterTyper:SetText({battle.EncounterText})
+        end
+        inSelect = 1
+        actionSelect = 1
+    elseif (newstate == "DEFENDING") then
+        encounterTyper:SetText({""})
+        inSelect = 1
+        actionSelect = 1
+    end
+end
+                    </code>
+                </pre>
+                <li><code>HandleActions(enemy_name, action)</code> - 参数为敌人的名字和其对应的选项，在行动时调用。</li>
+                <pre>
+                    <code class="language-lua">
+-- 填写敌人名字与其行动。
+
+local function HandleActions(enemy_name, action)
+    if (enemy_name == "Poseur") then -- 如果名字是Poseur
+        if (action == "Check") then -- 如果选中的是Poseur的Check选项。
+            BattleDialogue({
+                "* Poseur - 1 ATK 99 DEF[wait:30]\n* The default enemy.", 
+                "[colorHEX:9900ff]* Carrying warm memories..."
+            })
+        elseif (action == "Appreciate") then
+            BattleDialogue({
+                "* You posed with Poseur.\n[colorHEX:00ffff]* Time seems to have frozen in\n  this moment...", 
+                "* Enjoy the time!"
+            })
+        end
+    elseif (enemy_name == "[preset=chinese]敌人名称") then -- 这里注意敌人名字如果有标签那么带上标签。
+        if (action == "Check") then
+            BattleDialogue({
+                "* Posette - 1 ATK -1 DEF[wait:30]\n* Poseur's friend.",
+                "[colorHEX:9900ff]* Carrying warm memories too..."
+            })
+        elseif (action == "Appreciate") then
+            BattleDialogue({
+                "* You posed with Posette.\n[colorHEX:00ffff]* Time seems to have frozen in\n  this moment...",
+                "[colorHEX:11ff11]* Enjoy the time!!!"
+            })
+        end
+    end
+end
+                    </code>
+                </pre>
+                <li><code>HandleItems(itemID)</code> - 玩家使用物品的时候执行。</li>
+                <pre>
+                    <code class="language-lua">
+-- 参数为玩家选中的物品ID（即名字）。
+local function HandleItems(itemID)
+    local inventory = battle.Inventory
+    local randomText = {
+        "* It was very effective!",
+        "* It was not very effective...",
+        "* It was super effective!",
+        "* It was not very effective\n  at all...",
+        "* That was an amazing item!",
+        "* An unforgettable item!",
+    }
+
+    -- Check if the item is consumed.
+    BattleDialogue({
+        "* You found an item...[wait:30]\n  [colorRGB:255, 255, 0]" .. itemID .. "!",
+        randomText[math.random(1, #randomText)]
+    })
+
+    -- 当玩家只吃巧克力那么回复20HP。
+    if (itemID == "Chocolate") then
+        Player.Heal(20)
+    end
+end
+                    </code>
+                </pre>
+                <li><code>HandleSpare()</code> - 管理饶恕，只有玩家选择Spare选项的时候会执行。</li>
+                <pre>
+                    <code class="language-lua">
+local function HandleSpare()
+    battle.STATE = "DEFENDING" -- 如果没有饶恕所有敌人，那么自动把STATE替换为DEFENDING（即进入战斗回合）。
+end
+                    </code>
+                </pre>
+                <li><code>HandleFlee()</code> - 玩家成功逃跑的时候会执行。</li>
+                <pre>
+                    <code class="language-lua">
+local function HandleFlee()
+    love.audio.stop()
+    fleeing = true
+    fleetime = 0
+    fleelegs = sprites.CreateSprite("UI/Battle Screen/SOUL/spr_heartgtfo_0.png", 14.99)
+    fleelegs:MoveTo(battle.Player.sprite.x, battle.Player.sprite.y + 12)
+    fleelegs:SetAnimation({
+        "UI/Battle Screen/SOUL/spr_heartgtfo_1.png",
+        "UI/Battle Screen/SOUL/spr_heartgtfo_0.png"
+    }, 5)
+    battle.Player.sprite.y = battle.Player.sprite.y - 8
+    battle.Player.sprite.velocity.x = -1
+    BattleDialogue({
+        "* You fled from the battle.\n* You feel refreshed.",
+        "[noskip][function:ChangeScene|scene_end][next]"
+    })
+    audio.PlaySound("snd_flee.wav", 1, false)
+end
+                    </code>
+                </pre>
+                <li><code>OnHit(Bullet)</code> - 当玩家和在场的弹幕进行碰撞则会执行。</li>
+                <pre>
+                    <code class="language-lua">
+local function OnHit(Bullet)
+    local mode = Bullet['HurtMode']
+    if (mode == "normal" or type(mode) == "nil") then -- 如果弹幕类型是普通（默认）的。
+        battle.Player.Hurt(1, 120, true)
+    elseif (mode == "cyan" or mode == "blue") then -- 如果弹幕类型是蓝色的。
+        if (battle.Player.isMoving) then -- 如果玩家移动那么受伤。
+            battle.Player.Hurt(1, 0, true)
+        end
+    elseif (mode == "orange") then -- 如果弹幕类型是橙色的。
+        if (not battle.Player.isMoving) then -- 如果玩家不移动那么受伤。
+            battle.Player.Hurt(1, 0, true)
+        end
+    elseif (mode == "green") then -- 如果是绿色的。
+        battle.Player.Heal(1)
+        Bullet:Destroy() -- 玩家碰到之后回血，并且清除掉这个弹幕。
+    end
+end
+                    </code>
+                </pre>
+            </ul>
+        </p>
+        <h2>战斗的状态（STATE变量）</h2>
+        <p>
+            玩家选择按钮，停留在选择敌人/物品界面，均由此变量控制。<br>
+            <strong>以下为所有的STATE的值</strong>
+            <ul>
+                <li><code>ACTIONSELECT</code> - 玩家选择四个按钮的状态。</li>
+                <li><code>FIGHTMENU</code> - 玩家第一次点击进入战斗按钮的状态。</li>
+                <li><code>ACTMENU</code> - 玩家第一次点击进入行动按钮的状态。</li>
+                <li><code>ITEMMENU</code> - 玩家第一次点击进入物品按钮的状态。</li>
+                <li><code>MERCYMENU</code> - 玩家第一次点击进入饶恕按钮的状态。</li>
+                <li><code>ATTACKING</code> - 攻击校准条界面。</li>
+                <li><code>ACTSELECTING</code> - 玩家选中敌人后选择敌人选项的界面。</li>
+                <li><code>FLEEING</code> - 玩家逃跑的状态。</li>
+                <li><code>DIALOGUERESULT</code> - 旁白正在说话的状态。</li>
+                <li><code>DEFENDING</code> - 进入敌人回合，需要玩家避弹的状态。</li>
+                <li><code>NONE</code> - 空状态，无特殊行为。</li>
+            </ul>
+            <strong>以下为状态间的顺序</strong>
+            <ul>
+                <li><code>ACTIONSELECT -> (FIGHT/ACT/ITEM/MERCY)MENU</code></li>
+                <li><code>FIGHTMENU    -> ATTACKING      -> DEFENDING</code></li>
+                <li><code>ACTMENU      -> ACTSELECTING   -> DIALOGUERESULT -> [DEFENDING]</code></li>
+                <li><code>ITEMMENU     -> DIALOGUERESULT -> [DEFENDING]</code></li>
+                <li><code>MERCYMENU    -> (DEFENDING/FLEEING)</code></li>
+            </ul>
+        </p>
+        <h2>回合的创建</h2>
+        <p>
+            <strong>一个回合包括下面的基本要素</strong>
+            <ul>
+                <li><code>local wave = {ENDED = false, objects = {}}</code> - 不用管，只是回合的初始化，后面需要用objects表进行弹幕的回收。</li>
+                <li><code>EndWave()</code> - 直接结束回合的函数。</li>
+                <li><code>wave.update(dt)</code> - 更新回合的函数。</li>
+                <li><code>wave.draw()</code> - 回合内绘制。</li>
+                <li><code>return wave</code> - 不要动。</li>
+            </ul>
+            <strong>写一个回合的弹幕</strong><br>
+            利用之前贴图和弹幕专栏的代码进行弹幕的编写。<br>
+            <strong>每次创建弹幕后请务必将其添加到wave.objects表中，便于回合结束后的弹幕回收。</strong><br>
+            <pre>
+                <code class="language-lua">
+local wave = {
+    ENDED = false,
+    objects = {}
+}
+
+local function EndWave()
+    wave.ENDED = true
+    arenas.clear()
+    for i = #wave.objects, 1, -1 do
+        local obj = wave.objects[i]
+        obj:Destroy()
+        table.remove(wave.objects, i)
+    end
+end
+
+local stb = false
+function startbattle()
+    stb = true
+end
+
+local pst = typers.CreateText({
+    "[space:2, 0][fontSize:16][colorHEX:000000][font:Papyrus.ttf]BULLETS WILL\nONLY BE\nDISPLAYED IN\nCERTAIN AREAS.",
+    "[noskip][function:startbattle][next]"
+}, {220, 80}, 200, {200, 100}, "manual")
+pst:ShowBubble("left", 0.5)
+battle.Player.sprite:MoveTo(320, 320)
+battle.mainarena:Resize(155, 130)
+
+-- This is the mask1 stencil.
+-- args: shape, x, y, width, height, rotation, id
+local mask1 = masks.New("rectangle", 320, 320, 155, 130, 0, 1)
+
+local variable = 0
+function wave.update(dt)
+
+    -- Now can be replaced by the function mask1:Follow(battle.mainarena.black)
+    mask1:Follow(battle.mainarena.black)
+    battle.mainarena:Resize(155 + 30 * math.sin(variable / 10), 130)
+
+    if (stb) then
+        variable = variable + 1
+
+        if (variable % 10 == 0) then
+            local bul = sprites.CreateSprite("bullet.png", global:GetVariable("LAYER"))
+            bul.y = math.random(240, 400)
+
+            -- This is how we use stencils to make a bullet only appear in a certain area.
+            -- We use the mask1 stencil here, which is a rectangle that following the main arena.
+            bul:SetStencils({mask1})
+
+            local rand = math.random(1, 2)
+            if (rand == 1) then
+                bul.x = 220
+                bul.velocity.x = 2
+            elseif (rand == 2) then
+                bul.x = 420
+                bul.velocity.x = -2
+            end
+            bul._tpo = rand
+            bul.isBullet = true
+
+            bul.logic = function(self)
+                if ((self._tpo == 1 and self.x >= 420) or (self._tpo == 2 and self.x <= 220)) then
+                    self:Destroy()
+                    for i = #wave.objects, 1, -1 do
+                        if (wave.objects[i] == self) then
+                            table.remove(wave.objects, i)
+                            break
+                        end
+                    end
+                end
+            end
+
+            table.insert(wave.objects, bul) -- 把每个弹幕添加到objects表中。
+        end
+
+        for i = #wave.objects, 1, -1 do
+            local bul = wave.objects[i]
+            if (bul.isactive) then
+                bul:logic()
+            end
+        end
+
+        if (variable > 400) then
+            EndWave()
+        end
+    end
+end
+
+function wave.draw()
+end
+
+return wave
+                </code>
+            </pre>
+            <strong>模板自带的四个回合足以说明各种代码的操作，请自行阅读。</strong>
+        </p>
+        <h2>战斗详情</h2>
+        <p>
+            <strong>路径：Scripts/Libraries/Games/Encounter.lua</strong><br>
+            其内部拥有敌人的所有信息，以及玩家的信息，战斗进入场景一瞬间的信息。<br><br>
+            <strong>若想要新建一个遭遇，请模仿创建Spider战斗的操作，复制一个Encounter.lua！</strong>
+        </p>
+    </div>
+</body>
+</html>

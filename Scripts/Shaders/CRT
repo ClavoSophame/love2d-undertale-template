@@ -1,0 +1,30 @@
+extern number time;
+extern number scanlineSize;  // 扫描线粗细
+extern number scanIntensity; // 扫描线强度
+extern number scrollSpeed;   // 滚动速度
+extern number screenCurve;   // 屏幕边缘弯曲程度
+
+float rand(vec2 co) {
+    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+    vec2 curvedCoords = texture_coords - 0.5;
+    curvedCoords *= 1.0 + screenCurve * dot(curvedCoords, curvedCoords);
+    curvedCoords += 0.5;
+    curvedCoords = clamp(curvedCoords, 0.0, 1.0);
+    
+    vec4 texColor = Texel(texture, curvedCoords);
+    
+    float scanLine = abs(sin(curvedCoords.y * love_ScreenSize.y / scanlineSize + time * scrollSpeed));
+    scanLine = clamp(scanLine, 0.7, 1.0);
+    float wave = sin(curvedCoords.y * 30.0 + time * 5.0) * 0.001;
+    float noise = rand(vec2(curvedCoords.y * love_ScreenSize.y, time * 0.1)) * 0.05;
+    
+    vec3 finalColor = texColor.rgb * scanLine * (1.0 - scanIntensity) + texColor.rgb * scanIntensity;
+    finalColor = mix(finalColor, finalColor * vec3(0.8), noise);
+    float glow = 1.0 - distance(texture_coords, vec2(0.5)) * 0.3;
+    vec3 resto = finalColor * glow;
+    
+    return vec4(resto, texColor.a);
+}

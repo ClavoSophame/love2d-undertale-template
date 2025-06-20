@@ -1,0 +1,13 @@
+extern vec2 redOffset = vec2(0.01, 0.0);
+extern vec2 greenOffset = vec2(0.0, 0.0);
+extern vec2 blueOffset = vec2(-0.01, 0.01);
+
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
+    vec4 originalColor = Texel(tex, texture_coords);
+
+    float r = Texel(tex, texture_coords + redOffset).r;
+    float g = Texel(tex, texture_coords + greenOffset).g;
+    float b = Texel(tex, texture_coords + blueOffset).b;
+
+    return vec4(r, g, b, originalColor.a);
+}

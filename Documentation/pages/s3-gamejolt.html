@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .pop {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .oop {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+  
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>Gamejolt API</h1>
+        <p>
+            您是否有想过——当玩家的数据不能存在本地（可能电脑被清空），而他们想要获取自己之前的进度？<br>
+            亦或者是您想要展示/记录玩家的成就/得分排行榜？<br><br>
+            <strong>Gamejolt提供了天然的服务器环境可供使用。</strong>
+        </p>
+        <h2>初始化Gamejolt绑定游戏</h2>
+        <p>
+            使用代码<code>gamejolt.init(app_id, private_key)</code>来绑定你自己的游戏
+            <ul>
+                <li><code>app_id</code> - 游戏的id（六位数字）。</li>
+                <li><code>private_key</code> - 游戏的token。</li>
+            </ul>
+            <strong>示例</strong>
+            <pre>
+                <code class="language-lua">
+-- 绑定自己的游戏到gamejolt。
+gamejolt.init(969905, "oooidktheyarejusttoolongformetoclone")
+                </code>
+            </pre>
+            <br>
+        </p>
+        <p>
+            使用代码<code>gamejolt.auth_user(username, user_token)</code>进行用户绑定。
+            <ul>
+                <li><code>username</code> - 用户的名称。</li>
+                <li><code>user_token</code> - 用户的TOKEN（不是密码，要密码是违规的）。</li>
+            </ul>
+            <strong>示例</strong>
+            <pre>
+                <code class="language-lua">
+-- 绑定用户账户信息。
+gamejolt.auth_user("Clavo-Sophame", "AMINUOSASC")
+                </code>
+            </pre>
+        </p>
+        <h2>上传/读取玩家的所有数据到Gamejolt</h2>
+        <h3>成就的获取与发放（Trophy/Trophies）</h3>
+        <p>
+            使用<code>gamejolt.unlock_achievement(trophy_id)</code>给予玩家成就。
+            <ul>
+                <li><code>trophy_id</code> - 奖杯（成就）的ID。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 给予用户id为100000的成就。
+gamejolt.unlock_achievement(100000)
+                </code>
+            </pre>
+        </p>
+        <p>
+            使用<code>gamejolt.fetch_achievements(achieved_only)</code>获取玩家当前所获得的所有成就。
+            <ul>
+                <li><code>achieved_only</code> - 是否只获取玩家获得的，而不是全部的。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 获取所有成就。
+gamejolt.fetch_achievements()
+
+-- 只获取玩家获得的所有成就。
+gamejolt.fetch_achievements(true)
+                </code>
+            </pre>
+        </p>
+        <h3>游戏状态的显示（Session）</h3>
+        <p>
+            Gamejolt要求游戏在运行时维护一个会话（Session），用于显示玩家当前的在线状态。<br>
+            主要有以下几个函数：
+            <ul>
+            <li>
+                <code>gamejolt.session_open()</code> - 打开一个新的游戏会话，通常在游戏启动时调用。
+            </li>
+            <li>
+                <code>gamejolt.session_ping(status)</code> - 向服务器发送心跳包，保持会话活跃。<br>
+                <code>status</code>参数可以为<code>"active"</code>（活跃）或<code>"idle"</code>（空闲）。
+            </li>
+            <li>
+                <code>gamejolt.session_close()</code> - 关闭当前会话，通常在游戏退出时调用。
+            </li>
+            </ul>
+            <strong>示例</strong>
+            <pre>
+            <code class="language-lua">
+    -- 游戏启动时
+    gamejolt.session_open()
+
+    -- 游戏运行中定时发送心跳
+    gamejolt.session_ping("active")
+
+    -- 游戏退出时
+    gamejolt.session_close()
+            </code>
+            </pre>
+        </p>
+        <h2>数据的上传与读取（Data）</h2>
+        <p>
+            玩家的所有数据都会被上传到云端（Gamejolt）。<br>
+            使用<code>gamejolt.data_store(key, data, user_data)</code>存储玩家的数据。
+            <ul>
+                <li><code>key</code> - 你想要存的数据的名字。</li>
+                <li><code>data</code> - 你想要给这个名字一个什么值。</li>
+                <li><code>user_data</code> - 填写true即可，表明自动读取玩家的状态。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 存储玩家数据，令data名为血量，给予20的值。
+gamejolt.data_store("HP", 20, true)
+                </code>
+            </pre>
+        </p>
+        <p>
+            使用<code>gamejolt.data_fetch(key, user_data)</code>读取玩家的云端存档。
+            <ul>
+                <li><code>key</code> - 要读取的变量名。</li>
+                <li><code>user_data</code> - 填写true即可，表明自动读取玩家的状态。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 读取玩家的HP数据。
+local hp = gamejolt.data_fetch("HP", true)
+print(hp) -- 20
+                </code>
+            </pre>
+        </p>
+        <p>
+            使用<code>gamejolt.data_fetch_all(user_data)</code>获取玩家所有的云端变量（返回一个表）。
+            <ul>
+                <li><code>user_data</code> - 填写true即可，表明自动读取玩家的状态。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 读取玩家的所有云端数据。
+local details = gamejolt.data_fetch_all(true)
+                </code>
+            </pre>
+        </p>
+        <p>
+            使用<code>gamejolt.data_delete(key, user_data)</code>删除玩家的云端储存变量。
+            <ul>
+                <li><code>key</code> - 要删除的变量名。</li>
+                <li><code>user_data</code> - 填写true即可，表明自动读取玩家的状态。</li>
+            </ul>
+        </p>
+        <p>
+            使用<code>gamejolt.data_get_keys(user_data)</code>获取玩家现有的所有变量名。
+            <ul>
+                <li><code>user_data</code> - 填写true即可，表明自动读取玩家的状态。</li>
+            </ul>
+        </p>
+        <h2>分数排行榜（Scores）</h2>
+        <p>
+            使用<code>gamejolt.fetch_scores_local(table_id)</code>获取玩家本地的所有分数。
+            <ul>
+                <li><code>table_id</code> - 要获取的分数的表。</li>
+            </ul>
+        </p>
+        <p>
+            使用<code>gamejolt.fetch_scores_global(table_id)</code>获取该游戏的所有分数。
+            <ul>
+                <li><code>table_id</code> - 要获取的分数的表。</li>
+            </ul>
+        </p>
+        <p>
+            使用<code>gamejolt.submit_score(score, table_id, sort, extra_data)</code>上传玩家的分数到云端。
+            <ul>
+                <li><code>score</code> - 玩家的分数（字符串类型）。</li>
+                <li><code>table_id</code> - 要上传到哪个排行榜。</li>
+                <li><code>sort</code> - 以什么分数进行分类（数字类型）。</li>
+                <li><code>extra_data</code> - 额外数据，如果需要存特殊的变量类型，可以用这个。</li>
+            </ul>
+            <pre>
+                <code class="language-lua">
+-- 上传玩家打出的500分到排行榜TABLE中。
+gamejolt.submit_score("500", TABLE, 500)
+                </code>
+            </pre>
+        </p>
+        <h2>签名的生成</h2>
+        <p>
+            Gamejolt要求<strong>严格的签名</strong>。<br>
+            否则所有网络请求都会被拒绝掉。<br><br>
+            <strong>签名的要求：</strong>
+            <pre>
+                <code class="language-lua">
+local function generate_signature(request_path)
+    local input = gamejolt.base_url .. request_path .. gamejolt.private_key
+    return md5.sumhexa(input)
+end
+                </code>
+            </pre>
+            <strong>Gamejolt的基础url + 专题的url + 秘钥，最后用md5转化。</strong>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+extern number radius;
+extern vec2 direction;
+extern Image mainTex;
+
+const float weights[9] = float[9](0.05, 0.09, 0.12, 0.15, 0.18, 0.15, 0.12, 0.09, 0.05);
+
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+    vec4 sum = vec4(0.0);
+    vec2 texelSize = vec2(1.0/love_ScreenSize.x, 1.0/love_ScreenSize.y);
+    
+    vec2 blurVec = radius * direction * texelSize;
+    
+    sum += Texel(texture, texture_coords - 4.0 * blurVec) * weights[0];
+    sum += Texel(texture, texture_coords - 3.0 * blurVec) * weights[1];
+    sum += Texel(texture, texture_coords - 2.0 * blurVec) * weights[2];
+    sum += Texel(texture, texture_coords - 1.0 * blurVec) * weights[3];
+    sum += Texel(texture, texture_coords) * weights[4];
+    sum += Texel(texture, texture_coords + 1.0 * blurVec) * weights[5];
+    sum += Texel(texture, texture_coords + 2.0 * blurVec) * weights[6];
+    sum += Texel(texture, texture_coords + 3.0 * blurVec) * weights[7];
+    sum += Texel(texture, texture_coords + 4.0 * blurVec) * weights[8];
+    
+    return sum * color;
+}

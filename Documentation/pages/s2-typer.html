@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .pop {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .oop {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+  
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>打字机</h1>
+        <p>
+            打字机是SouleEngine中用于显示文本的组件，支持多种样式和动画效果。它可以用于对话框、提示信息等场景。
+        </p>
+        <h2>打字机的创建</h2>
+        <p>
+            该代码将创建一个打字机实例，显示文本“Hello, World!”在屏幕中心位置开始打字，使用手动模式（按Z可消除）。<br>
+            其对话框气泡大小为200x100像素（暂时不显示图像）。
+            <pre>
+                <code class="language-lua">
+-- 创建一个打字机实例，这里第一个参数可以是表。
+local typer = typers.CreateText({"I am the first argument!"}, {320, 240}, 0, {200, 100}, "manual")
+
+-- 这个打字机的第一个参数就是字符串
+local typer = typers.CreateText("I am a string!", {320, 240}, 0, {200, 100}, "manual")
+                </code>
+            </pre>
+            下面我们来看看所有的函数吧。
+        </p>
+        <h3>创建打字机的函数</h3>
+        <p>
+            打字机的函数可以通过typers对象调用，以下是常用的函数列表：
+            <ul>
+                <li><code>typers.CreateText(text, position, layer, bubblesize, mode)</code>
+                    创建一个新的打字机实例。<br>
+                    参数说明：
+                    <ul>
+                        <li><code>text</code> - 要显示的文本，可以是字符串或表。</li>
+                        <li><code>position</code> - 打字机的位置，格式为{x, y}。</li>
+                        <li><code>layer</code> - 打字机所在的图层。</li>
+                        <li><code>bubblesize</code> - 对话框气泡的大小，格式为{宽度, 高度}。</li>
+                        <li><code>mode</code> - 打字机模式，如“manual”或“auto”。</li>
+                        目前，mode参数支持的值有：
+                        <ul>
+                            <li><code>manual</code> - 手动模式，按Z键可以消除当前文本。</li>
+                            <li><code>auto</code> - 自动模式，文本会自动打出，对话结尾后等待三秒自动下一句。</li>
+                            <li><code>none</code> - 玩家无法进行干预，打字机不会自动执行对话，需要代码层面的响应。</li>
+                        </ul>
+                    </ul><br>
+
+                    注意，现在用一个typer变量储存打字机实例，我们称之为create类型的typer<br>
+                    关于create类型的typer的方法如下：<br>
+                    <ul>
+                        <li><code>typer:SetText(texts)</code> - 设置打字机要显示的文本，可以是字符串或表。该方法会自动使用下面的Reset函数，并重新从头开始打字。</li>
+                        <li><code>typer:Reset()</code> - 令打字机重置（清除当前所有创建的字符，但是保留实例本身） </li>
+                        <li><code>typer:GetLettersSize()</code> - 获取打字机现在的长度和宽度（会动态变化）</li>
+                        <li><code>typer:ShowBubble(direction, position)</code>
+                        - 显示打字机的对话框气泡。<br>
+                            参数说明：
+                            <ul>
+                                <li><code>direction</code> - 对话框气泡的方向，可以是“left”、“right”、“up”、“down”。</li>
+                                <li><code>position</code> - 对话框气泡的位置，是一个0~1的数。</li>
+                            </ul>
+                        </li>
+                        <li><code>typer:HideBubble()</code> - 隐藏打字机的对话框。</li>
+                        <li><code>typer:Destroy()</code> - 删除打字机实例（包括其打出来的所有字符）。</li>
+                        <li><code>typer:Remove()</code> - 同Destroy的操作，只是为了某些人的习惯。</li>
+                    </ul>
+                </li>
+                <li><code>typers.DrawText(text, position, layer)</code>
+                    直接绘制文本到屏幕上。<br>
+                    参数说明：
+                    <ul>
+                        <li><code>text</code> - 要绘制的文本，只能是字符串。</li>
+                        <li><code>position</code> - 文本的位置，格式为{x, y}。</li>
+                        <li><code>layer</code> - 文本所在的图层。</li>
+                    </ul><br>
+                    注意，这个函数也会创建打字机实例，但是会直接绘制文本到屏幕上。<br>
+                    它适用于不需要打字机效果的场景。<br>
+
+                    <br>
+                    同样的，我们也可以使用一个typer变量来储存这个实例，称之为draw类型的typer。<br>
+                    关于draw类型的typer的方法如下：<br>
+                    <ul>
+                        <li><code>typer:SetText(texts)</code> - 设置要显示的文本，只能是字符串。</li>
+                        <li><code>typer:Reparse()</code> - 重新解析字符串，用于修改颜色、文本等时，在其后直接添加，以让打字机适应新设置。</li>
+                        <li><code>typer:GetLettersSize()</code> - 获取打字机现在的长度和宽度（除非设置，否则不会动态变化）</li>
+                        <li><code>typer:Destroy()</code> - 删除打字机实例（包括其打出来的所有字符）。</li>
+                        <li><code>typer:Remove()</code> - 同Destroy的操作，只是为了某些人的习惯。</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <h3>其余不常使用的函数</h3>
+        <p>
+            <strong>以下函数均在main.lua中被使用，故无需重新使用。</strong>
+            <ul>
+                <li><code>typers.Update()</code> - 更新打字机的函数。</li>
+                <li><code>typers.Draw()</code> - 调用每个打字机自己的绘制函数。</li>
+                <li><code>typers.clear()</code> - 清除该库创建的所有打字机。</li>
+            </ul>
+        </p>
+        <h2>文本的标签</h2>
+        <p>
+            你可能曾经见过——<br>
+            Flowey在说话的时候，文字可能会突然颤抖起来。<br>
+            亦或者是Gaster说话的时候，每个文本都有自己独特的音效。<br>
+            这些都是通过文本标签来实现的。<br><br>
+
+            <strong>恰好，打字机所打出来的每个字符，都是单个字符，这让我们单独操控一个文本中的每个字符都成为了可能。</strong>
+            <br><br>
+            下面是所有的文本标签<strong>（create类型的typer）</strong>：
+            <ul>
+                <li><code>colorRGB:r,g,b</code> - 设置文本颜色，范围0~1。</li>
+                <li><code>colorHEX:rrggbb</code> - 设置文本颜色，使用十六进制，从00~ff。</li>
+                <li><code>fontIndex:x</code> - 选择第几个预设字体（目前只支持两个），一代表英文（也是默认的）、二代表中文（需要后期手动设置）。</li>
+                <li><code>font:x</code> - 输入字体文件名（需要带上后缀），读取并使用字体。</li>
+                <li><code>fontSize:x or fontSize:x, y</code> - 设置字体大小。如果使用x, y两个参数那么第一个参数为要修改的fontIndex。</li>
+                <li><code>alpha:x</code> - 设置接下来打出来的文本的透明度，范围0~1。</li>
+                <li><code>offset:x, y, z</code> - 调整字体的坐标偏移，x为第几个字体。</li>
+                <li><code>voice:x</code> - 设置打字机的音效。</li>
+                <li><code>space:x, y</code> - 设置每个字符的间隔。x为要修改的是1（x）还是2（y）。</li>
+                <li><code>wait:x</code> - 停顿x帧后继续打字。</li>
+                <li><code>waitALL:x</code> - 从这个标签开始，后面所有打字均停顿x帧。</li>
+                <li><code>waitKEY:key</code> - 在这个标签处停顿，只有按下"key"按键一次，才能继续打字，中间等待时间为无穷大。</li>
+                <li><code>scale:x</code> - 由此开始把后面所有打字的字符放大x倍。</li>
+                <li><code>speed:x</code> - 设置打字机的打字倍速为x倍。</li>
+                <li><code>effect:x, intensity</code> 
+                    - x为要设置为什么effect，intensity为该effect的强度。
+                    <ul>
+                        <li><code>none</code> - 无效果。</li>
+                        <li><code>shake</code> - 震动效果，intensity为震动的强度。</li>
+                        <li><code>rotate</code> - 旋转效果，intensity为旋转的幅度。</li>
+                    </ul>
+                </li>
+                <li><code>function:name, arg or function:name, args</code> 
+                    - 随着打字的进行，同时执行里面的函数（可附带一个或者多个参数）
+                    <br>
+                    如果是一个参数，那么不需要用表包裹起来；如果是多个参数，那么需要用表包裹起来。
+                </li>
+                <li><code>pattern:x</code> - 直接设置出预制的字体设置
+                    <ul>
+                        <li><code>chinese</code> - 使用中文字体的样式</li>
+                        <li><code>english</code> - 使用英文字体的样式</li>
+                    </ul>
+                </li>
+                <li><code>RESET:x</code> - 重置打字机的一些属性。
+                    <ul>
+                        <li><code>color</code> - 重置打字机的颜色为白色。</li>
+                        <li><code>font</code> - 重置打字机的字体为默认的字体。</li>
+                        <li><code>fontSize</code> - 重置两个字体的大小。</li>
+                        <li><code>alpha</code> - 重置打字机打字的透明度。</li>
+                        <li><code>position</code> - 重置打字机开始打字的位置。</li>
+                    </ul>
+                </li><br>
+                <strong>以下是独体标签，没有冒号分割头尾的标签：</strong>
+                <li><code>RESET</code> - 重置打字机的一切设置。</li>
+                <li><code>skip or instant</code> - 设置打字机直接跳过。</li>
+                <li><code>shadow</code> - 给打字机添加一个背后的阴影（参考DELTARUNE的UI打字机）。</li>
+                <li><code>noshadow</code> - 关闭打字机的阴影功能。</li>
+                <li><code>noskip</code> - 设置玩家按下X或shift后不可跳过。</li>
+                <li><code>voice</code> - 设置打字机可以进行音效播放。</li>
+                <li><code>novoice</code> - 设置打字机不可进行音效播放。</li>
+                <li><code>canskip</code> - 设置打字机可以跳过。</li>
+                <li><code>next</code> - 自动执行播放下一个句子，不论这个句子是否被打完。</li>
+            </ul>
+            <br><br>
+            下面是所有的文本标签<strong>（draw类型的typer）</strong>：
+            <ul>
+                <li><code>font=x</code> - 直接设置打字机的字体，由此往后的文字字体都会被修改。</li>
+                <li><code>scale=x</code> - 设置字体的图片倍数大小。</li>
+                <li><code>spaceX=x</code> - 设置每个字符之间的间隔为x个像素。</li>
+                <li><code>offsetX=x</code> - 设置整体打字位置横坐标偏移为x个像素。</li>
+                <li><code>offsetY=y</code> - 设置整体打字位置纵坐标偏移为y个像素。</li>
+                <li><code>preset=x</code> 
+                    - 直接设置出预制的字体设置。
+                    <ul>
+                        <li><code>chinese</code> - 使用中文字体的样式。</li>
+                        <li><code>ch-d</code> - 去掉了强制偏移的中文字体样式。</li>
+                    </ul>
+                </li>
+            </ul>
+        </p>
+        <h2>实例</h2>
+        <p>
+            如何给每个字体做随机颜色？<br>
+            这个方法有一些抽象，但是可以基本保证没有什么大问题<br>
+            其原理就是通过循环实现在每个字母前面自动加入一个颜色标签而达到效果。<br>
+            <pre>
+                <code class="language-lua">
+-- 此为转换函数，最后返回结果字符串。
+function ColorfulText(text)
+    local str = "" -- 这是当前字符串。
+    local result = "" -- 这是结果字符串，最后会返回完整的新的text。
+    local in_tag = false -- 检测是否在标签之中，如果在里面那么不会添加颜色标签。
+    local i = 1
+
+    while (i <= text:len())
+    do
+        str = text:sub(i, i)
+        if (not in_tag) then
+            if (str == "[") then
+                in_tag = true
+                result = result .. str
+            else
+                local r, g, b = math.random(), math.random(), math.random()
+                result = result .. "[color:" .. r .. "," .. g .. "," .. b .. "]" .. str
+            end
+        else
+            result = result .. str
+            if (str == "]") then
+                in_tag = false
+            end
+        end
+        i = i + 1
+    end
+
+    -- 返回结果字符串。
+    return result
+end
+
+local str = ColorfulText("* This is my text.")
+                </code>
+            </pre>
+            <strong>需要注意的是：如果你使用的并不是英语，而是混杂着其他语言，则需要重新计算每个字符所占的byte（例如每个汉字就占3个位置，计算过程中i可能需要+3才能达到需求）。</strong><br><br>
+            方便起见，下面，我将给予如何通过byte获取所占长度的代码：
+            <pre>
+                <code class="language-lua">
+local function ByteLength(b)
+    local d = 1
+    if (b) then
+        if b > 239 then
+            d = 4
+        elseif b > 223 then
+            d = 3
+        elseif b > 128 then
+            d = 2
+        else
+            d = 1
+        end
+    end
+    return d
+end
+
+local str = "你"
+local byte = string.byte(str, 1)
+local length = ByteLength(byte)
+print(length) -- 返回3。
+
+local converted_str = str:sub(1, 1 + length - 1)
+print(converted_str) -- 真正返回 “你”。
+                </code>
+            </pre>
+        </p>
+    </div>
+</body>
+</html>

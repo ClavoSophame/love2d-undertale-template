@@ -1,0 +1,10 @@
+extern float intensity;
+
+vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords) {
+    vec4 pixel = Texel(texture, texture_coords);
+    float gray = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
+
+    vec3 finalColor = mix(pixel.rgb, vec3(gray), intensity);
+    
+    return vec4(finalColor, pixel.a);
+}

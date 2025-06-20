@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SouleEngine文档</title>
+    <style>
+        :root {
+            --bg-color: #0f0f17;
+            --sidebar-bg: #1a1a2a;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent-color: #7a5af5;
+            --code-bg: #1e1e2e;
+            --border-color: #2a2a3a;
+            --hover-bg: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            padding: 30px 0;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 3px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--hover-bg);
+            color: white;
+        }
+        
+        .sidebar-nav a.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav .section-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 15px 12px 8px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px 50px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            color: #e0e0e0;
+        }
+        
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+        
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--sidebar-bg);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .pop {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .oop {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 20px 0;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+    </style>
+  
+    <link rel="stylesheet" href="../css/newpvsc.css" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SoulEngine文档</h1>
+            <p>FOR SoulEngine v2.3.4</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="section-title">入门指南</li>
+                <li><a href="../index.html">注意事项</a></li>
+                <li><a href="../pages/s1-download.html">下载与配置</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">基础开发</li>
+                <li><a href="../pages/s2-basics.html">基础入门</a></li>
+                <li><a href="../pages/s2-sprites.html">贴图与弹幕</a></li>
+                <li><a href="../pages/s2-typer.html">文本与打字机</a></li>
+                <li><a href="../pages/s2-collisions.html">碰撞</a></li>
+                <li><a href="../pages/s2-player.html">玩家</a></li>
+                <li><a href="../pages/s2-camera.html">摄像机</a></li>
+                <li><a href="../pages/s2-easings.html">缓动</a></li>
+                <li><a href="../pages/s2-shaders.html">着色器</a></li>
+                <li><a href="../pages/s2-audio.html">音频</a></li>
+                <li><a href="../pages/s2-globals.html">全局变量</a></li>
+                <li><a href="../pages/s2-keyboard.html">按键检测</a></li>
+                <li><a href="../pages/s2-window.html">游戏窗口</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">进阶开发</li>
+                <li><a href="../pages/s3-gamejolt.html">Gamejolt API</a></li>
+                <li><a href="../pages/s3-json.html">JSON</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">遭遇战斗</li>
+                <li><a href="../pages/s4-scenes.html">场景介绍</a></li>
+                <li><a href="../pages/s4-battle.html">战斗场景</a></li>
+            </ul>
+            <ul>
+                <li class="section-title">其余页面</li>
+                <li><a href="../pages/se-keyslist.html">键盘表</a></li>
+                <li><a href="../pages/lua-tutorial.html">Lua教程</a></li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>全键表</h1>
+        <p>
+            此处为该引擎所使用的所有键对应的id。<br>
+        </p>
+        <h2>字母</h2>
+        <p>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID (ScanCode)</th>
+                    <th>所对应的按键</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td><strong>a</strong></td><td class="pop">英文字母A</td></tr>
+                <tr><td><strong>b</strong></td><td class="pop">英文字母B</td></tr>
+                <tr><td><strong>c</strong></td><td class="pop">英文字母C</td></tr>
+                <tr><td><strong>d</strong></td><td class="pop">英文字母D</td></tr>
+                <tr><td><strong>e</strong></td><td class="pop">英文字母E</td></tr>
+                <tr><td><strong>f</strong></td><td class="pop">英文字母F</td></tr>
+                <tr><td><strong>g</strong></td><td class="pop">英文字母G</td></tr>
+                <tr><td><strong>h</strong></td><td class="pop">英文字母H</td></tr>
+                <tr><td><strong>i</strong></td><td class="pop">英文字母I</td></tr>
+                <tr><td><strong>j</strong></td><td class="pop">英文字母J</td></tr>
+                <tr><td><strong>k</strong></td><td class="pop">英文字母K</td></tr>
+                <tr><td><strong>l</strong></td><td class="pop">英文字母L</td></tr>
+                <tr><td><strong>m</strong></td><td class="pop">英文字母M</td></tr>
+                <tr><td><strong>n</strong></td><td class="pop">英文字母N</td></tr>
+                <tr><td><strong>o</strong></td><td class="pop">英文字母O</td></tr>
+                <tr><td><strong>p</strong></td><td class="pop">英文字母P</td></tr>
+                <tr><td><strong>q</strong></td><td class="pop">英文字母Q</td></tr>
+                <tr><td><strong>r</strong></td><td class="pop">英文字母R</td></tr>
+                <tr><td><strong>s</strong></td><td class="pop">英文字母S</td></tr>
+                <tr><td><strong>t</strong></td><td class="pop">英文字母T</td></tr>
+                <tr><td><strong>u</strong></td><td class="pop">英文字母U</td></tr>
+                <tr><td><strong>v</strong></td><td class="pop">英文字母V</td></tr>
+                <tr><td><strong>w</strong></td><td class="pop">英文字母W</td></tr>
+                <tr><td><strong>x</strong></td><td class="pop">英文字母X</td></tr>
+                <tr><td><strong>y</strong></td><td class="pop">英文字母Y</td></tr>
+                <tr><td><strong>z</strong></td><td class="pop">英文字母Z</td></tr>
+                </tbody>
+            </table>
+        </p>
+        <h2>大键盘数字键与功能键</h2>
+        <p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID (ScanCode)</th>
+                        <th>所对应的按键</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>0</strong></td><td class="pop">大键盘数字0</td></tr>
+                    <tr><td><strong>1</strong></td><td class="pop">大键盘数字1</td></tr>
+                    <tr><td><strong>2</strong></td><td class="pop">大键盘数字2</td></tr>
+                    <tr><td><strong>3</strong></td><td class="pop">大键盘数字3</td></tr>
+                    <tr><td><strong>4</strong></td><td class="pop">大键盘数字4</td></tr>
+                    <tr><td><strong>5</strong></td><td class="pop">大键盘数字5</td></tr>
+                    <tr><td><strong>6</strong></td><td class="pop">大键盘数字6</td></tr>
+                    <tr><td><strong>7</strong></td><td class="pop">大键盘数字7</td></tr>
+                    <tr><td><strong>8</strong></td><td class="pop">大键盘数字8</td></tr>
+                    <tr><td><strong>9</strong></td><td class="pop">大键盘数字9</td></tr>
+                    <tr><td><strong>F1</strong></td><td class="oop">功能键F1</td></tr>
+                    <tr><td><strong>F2</strong></td><td class="oop">功能键F2</td></tr>
+                    <tr><td><strong>F3</strong></td><td class="oop">功能键F3</td></tr>
+                    <tr><td><strong>F4</strong></td><td class="oop">功能键F4</td></tr>
+                    <tr><td><strong>F5</strong></td><td class="oop">功能键F5</td></tr>
+                    <tr><td><strong>F6</strong></td><td class="oop">功能键F6</td></tr>
+                    <tr><td><strong>F7</strong></td><td class="oop">功能键F7</td></tr>
+                    <tr><td><strong>F8</strong></td><td class="oop">功能键F8</td></tr>
+                    <tr><td><strong>F9</strong></td><td class="oop">功能键F9</td></tr>
+                    <tr><td><strong>F10</strong></td><td class="oop">功能键F10</td></tr>
+                    <tr><td><strong>F11</strong></td><td class="oop">功能键F11</td></tr>
+                    <tr><td><strong>F12</strong></td><td class="oop">功能键F12</td></tr>
+                </tbody>
+            </table>
+        </p>
+        <h2>功能键</h2>
+        <p>
+            <table>
+            <thead>
+                <tr>
+                <th>ID (ScanCode)</th>
+                <th>所对应的按键</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>space</strong></td><td class="oop">空格键</td></tr>
+                <tr><td><strong>lshift</strong></td><td class="oop">左Shift</td></tr>
+                <tr><td><strong>rshift</strong></td><td class="oop">右Shift</td></tr>
+                <tr><td><strong>lctrl</strong></td><td class="oop">左Ctrl</td></tr>
+                <tr><td><strong>rctrl</strong></td><td class="oop">右Ctrl</td></tr>
+                <tr><td><strong>lalt</strong></td><td class="oop">左Alt</td></tr>
+                <tr><td><strong>ralt</strong></td><td class="oop">右Alt</td></tr>
+                <tr><td><strong>tab</strong></td><td class="oop">Tab键</td></tr>
+                <tr><td><strong>capslock</strong></td><td class="oop">大写锁定</td></tr>
+                <tr><td><strong>escape</strong></td><td class="oop">Esc键</td></tr>
+                <tr><td><strong>return</strong></td><td class="oop">回车(Enter)</td></tr>
+                <tr><td><strong>backspace</strong></td><td class="oop">退格(Backspace)</td></tr>
+                <tr><td><strong>insert</strong></td><td class="oop">Insert</td></tr>
+                <tr><td><strong>delete</strong></td><td class="oop">Delete</td></tr>
+                <tr><td><strong>home</strong></td><td class="oop">Home</td></tr>
+                <tr><td><strong>end</strong></td><td class="oop">End</td></tr>
+                <tr><td><strong>pageup</strong></td><td class="oop">Page Up</td></tr>
+                <tr><td><strong>pagedown</strong></td><td class="oop">Page Down</td></tr>
+                <tr><td><strong>up</strong></td><td class="oop">方向键上</td></tr>
+                <tr><td><strong>down</strong></td><td class="oop">方向键下</td></tr>
+                <tr><td><strong>left</strong></td><td class="oop">方向键左</td></tr>
+                <tr><td><strong>right</strong></td><td class="oop">方向键右</td></tr>
+                <tr><td><strong>menu</strong></td><td class="oop">菜单键</td></tr>
+            </tbody>
+            </table>
+        </p>
+        <h2>标点符号</h2>
+        <p>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID (ScanCode)</th>
+                    <th>所对应的按键</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td><strong>minus</strong></td><td class="pop">-（减号/下划线）</td></tr>
+                <tr><td><strong>equals</strong></td><td class="pop">=（等号/加号）</td></tr>
+                <tr><td><strong>leftbracket</strong></td><td class="pop">[（左中括号/大括号）</td></tr>
+                <tr><td><strong>rightbracket</strong></td><td class="pop">]（右中括号/大括号）</td></tr>
+                <tr><td><strong>backslash</strong></td><td class="pop">\（反斜杠/竖线）</td></tr>
+                <tr><td><strong>semicolon</strong></td><td class="pop">;（分号/冒号）</td></tr>
+                <tr><td><strong>apostrophe</strong></td><td class="pop">'（单引号/双引号）</td></tr>
+                <tr><td><strong>comma</strong></td><td class="pop">,（逗号/小于号）</td></tr>
+                <tr><td><strong>period</strong></td><td class="pop">.（句号/大于号）</td></tr>
+                <tr><td><strong>slash</strong></td><td class="pop">/（斜杠/问号）</td></tr>
+                <tr><td><strong>grave</strong></td><td class="pop">`（反引号/波浪号）</td></tr>
+                </tbody>
+            </table>
+        </p>
+        <h2>鼠标按键</h2>
+        <p>
+            <table>
+            <thead>
+            <tr>
+                <th>ID (ScanCode)</th>
+                <th>所对应的按键</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>mouse1</strong></td><td class="pop">鼠标左键</td></tr>
+                <tr><td><strong>mouse2</strong></td><td class="pop">鼠标右键</td></tr>
+                <tr><td><strong>mouse3</strong></td><td class="pop">鼠标中键</td></tr>
+                <tr><td><strong>mouse4</strong></td><td class="pop">鼠标侧键1（通常为前进）</td></tr>
+                <tr><td><strong>mouse5</strong></td><td class="pop">鼠标侧键2（通常为后退）</td></tr>
+            </tbody>
+            </table>
+        </p>
+        <h2>小键盘按键</h2>
+        <p>
+            <table>
+            <thead>
+                <tr>
+                <th>ID (ScanCode)</th>
+                <th>所对应的按键</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>kp0</strong></td><td class="pop">小键盘0</td></tr>
+                <tr><td><strong>kp1</strong></td><td class="pop">小键盘1</td></tr>
+                <tr><td><strong>kp2</strong></td><td class="pop">小键盘2</td></tr>
+                <tr><td><strong>kp3</strong></td><td class="pop">小键盘3</td></tr>
+                <tr><td><strong>kp4</strong></td><td class="pop">小键盘4</td></tr>
+                <tr><td><strong>kp5</strong></td><td class="pop">小键盘5</td></tr>
+                <tr><td><strong>kp6</strong></td><td class="pop">小键盘6</td></tr>
+                <tr><td><strong>kp7</strong></td><td class="pop">小键盘7</td></tr>
+                <tr><td><strong>kp8</strong></td><td class="pop">小键盘8</td></tr>
+                <tr><td><strong>kp9</strong></td><td class="pop">小键盘9</td></tr>
+                <tr><td><strong>kp.</strong></td><td class="pop">小键盘小数点</td></tr>
+                <tr><td><strong>kp,</strong></td><td class="pop">小键盘逗号</td></tr>
+                <tr><td><strong>kp/</strong></td><td class="pop">小键盘斜杠</td></tr>
+                <tr><td><strong>kp*</strong></td><td class="pop">小键盘星号</td></tr>
+                <tr><td><strong>kp-</strong></td><td class="pop">小键盘减号</td></tr>
+                <tr><td><strong>kp+</strong></td><td class="pop">小键盘加号</td></tr>
+                <tr><td><strong>kpenter</strong></td><td class="pop">小键盘回车</td></tr>
+                <tr><td><strong>kp=</strong></td><td class="pop">小键盘等号</td></tr>
+            </tbody>
+            </table>
+        </p>
+    </div>
+</body>
+</html>

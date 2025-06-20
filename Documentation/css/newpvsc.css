@@ -1,0 +1,118 @@
+/* 基础样式 */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #d4d4d4; /* 基础文字颜色 (color2_from_index[3]) */
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* 代码块样式 */
+pre[class*="language-"] {
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+  background: #1f1f1f;
+}
+
+/* 内联代码样式 */
+:not(pre) > code[class*="language-"] {
+  padding: 0.1em;
+  border-radius: 0.3em;
+  white-space: normal;
+  background: #1f1f1f;
+}
+
+/* 选择文本样式 */
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection,
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection {
+  background: #264F78; /* 修改为更明显的选择颜色 */
+}
+
+/* ============== VSCode 颜色映射 ============== */
+
+/* [0] 局部变量/关键字 - 蓝色 (56, 156, 214) */
+.token.keyword,
+.token.variable,
+.token.constant {
+  color: #569cd6;
+}
+
+/* [1] 代码块开头/结尾关键字 - 粉色 (197, 134, 161) */
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #c586a1;
+}
+
+/* [2] 循环相关 - 同粉色 */
+.token.control-flow {
+  color: #c586a1;
+}
+
+/* [3] 运算/标点/运算符 - 浅灰 (212, 212, 212) */
+.token.operator,
+.token.punctuation {
+  color: #d4d4d4;
+}
+
+/* [4] 常量 - 同蓝色 */
+.token.constant {
+  color: #569cd6;
+}
+
+/* [5] 运算符 - 同浅灰 (已在上方定义) */
+
+/* [6] 字符串 - 橙色 (206, 145, 91) */
+.token.string,
+.token.char {
+  color: #ce915b;
+}
+
+/* [7] 注释 - 绿色 (106, 153, 85) */
+.token.comment {
+  color: #6a9955;
+}
+
+/* [8] 数字 - 浅绿 (181, 206, 168) */
+.token.number,
+.token.boolean {
+  color: #b5cea8;
+}
+
+/* [9] 标识符 - 浅蓝 (156, 220, 254) */
+.token.function,
+.token.class-name,
+.token.attr-name,
+.token.selector,
+.token.property {
+  color: #9cdcfe;
+}
+
+/* 配合 match-braces 插件后的括号颜色 */
+.token.punctuation.brace-level-1 { color: #ffd710 !important; }
+.token.punctuation.brace-level-2 { color: #da70d6 !important; }
+.token.punctuation.brace-level-3 { color: #1a9fff !important; }
+
+
+/* 其他辅助样式 */
+.token.deleted {
+  color: #ce9178;
+}
+.token.regex {
+  color: #d16969;
+}
+.token.important {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
