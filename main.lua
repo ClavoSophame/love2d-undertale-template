@@ -1,6 +1,7 @@
 -- Libraries
 global = require("Scripts.Libraries.GlobalVariables")
 maths = require("Scripts.Libraries.Utils.Mathematics")
+collisions = require("Scripts.Libraries.Collisions")
 keyboard = require("Scripts.Libraries.Keyboard")
 masks = require("Scripts.Libraries.MaskManager")
 audio = require("Scripts.Libraries.AudioManager")
@@ -9,12 +10,13 @@ sprites = require("Scripts.Libraries.SpritesManager")
 typers = require("Scripts.Libraries.TyperManager")
 scenes = require("Scripts.Libraries.SceneManager")
 tween = require("Scripts.Libraries.Tween")
-windows = require("Scripts.Libraries.Utils.Windows")
+localize = require("Localization.en")
+require("Localization.LOCALIZE")
 
 -- Canvas setup
 CANVAS = love.graphics.newCanvas(
-    love.graphics.getWidth() * 1,
-    love.graphics.getHeight() * 1,
+    love.graphics.getWidth(),
+    love.graphics.getHeight(),
     nil,
     {
         format = "stencil",
@@ -22,12 +24,23 @@ CANVAS = love.graphics.newCanvas(
     }
 )
 CANVAS:setFilter("nearest", "nearest")
-local CANVAS_USE_SHADER = false
-local CANVAS_SHADER = nil
+local INTERMEDIATE_CANVAS = love.graphics.newCanvas(
+    love.graphics.getWidth(),
+    love.graphics.getHeight(),
+    nil,
+    {
+        format = "stencil",
+        readable = true
+    }
+)
+INTERMEDIATE_CANVAS:setFilter("nearest", "nearest")
 
 -- Global variables
+global:SetVariable("FPS", 60)
+global:SetVariable("ScreenShaders", {})
 global:SetVariable("LAYER", 30)
-global:SetVariable("OverworldInited", false)
+global:SetVariable("EncounterNobody", false)
+local reset_room = "scene_logo"
 
 -- Display configuration
 LOGICAL_WIDTH, LOGICAL_HEIGHT = 640, 480
@@ -41,30 +54,40 @@ draw_x = math.floor((screen_w - 640 * scale) * 0.5 + 0.5)
 draw_y = math.floor((screen_h - 480 * scale) * 0.5 + 0.5)
 
 -- Frame rate control
-local desiredFPS = 60
-local frameTime = 1 / desiredFPS
+local frameTime = 1 / global:GetVariable("FPS")
 local startTime
 
 -- Main Love2D callbacks
 function love.load()
     -- System setup
-    if love.system.getOS() == "Windows" then
-        local handle = io.popen("chcp 65001", "r")
-        handle:close()
+    if (not _RELEASED) then
+        if (love.system.getOS() == "Windows") then
+            local handle = io.popen("chcp 65001", "r")
+            handle:close()
+        end
     end
-    
+
     -- Initialization
     startTime = love.timer.getTime()
     math.randomseed(os.time())
     love.graphics.setBackgroundColor(0, 0, 0)
 
+    --[[if (love.system.openURL) then
+        if (love.system.getOS() == "Windows") then
+            os.execute("start \"\" \"" .. love.filesystem.getSaveDirectory() .. "/testplaceholder\"")
+        else
+            love.system.openURL("file://" .. love.filesystem.getSaveDirectory() .. "/testplaceholder")
+        end
+    end]]
+
     -- Scene loading
     local success, err = pcall(function()
-        scenes.switchTo("Overworld/scene_ow_ruins_0") -- Start with the logo scene.
+        scenes.switchTo("scene_logo") -- Start with the logo scene.
+        reset_room = "scene_logo" -- Which room will the player switch to after pressed f2.
     end)
-    
+
     if (not success) then
-        print("Error loading scene: " .. err)
+        error(err)
     end
 end
 
@@ -75,15 +98,15 @@ function love.update(dt)
     sprites.Update(dt)
     typers.Update()
     tween.Update(dt)
-    _CAMERA_:update(dt)
-
     if (scenes.current) then
         if (scenes.current.update) then
             scenes.current.update(dt)
         end
     end
+    _CAMERA_:update(dt)
 
     -- The following code is used to limit the frame rate of the game.
+    frameTime = 1 / global:GetVariable("FPS")
     local endTime = love.timer.getTime()
     local elapsedTime = endTime - startTime
     if (elapsedTime < frameTime) then
@@ -99,7 +122,7 @@ function love.update(dt)
 end
 
 function love.resize(w, h)
-    if CANVAS:getWidth() < w or CANVAS:getHeight() < h then
+    if CANVAS:getWidth() ~= w or CANVAS:getHeight() ~= h then
         CANVAS = love.graphics.newCanvas(w - draw_x * 2, h - draw_y)
     end
 end
@@ -111,7 +134,7 @@ function love.draw()
     draw_y = math.floor((screen_h - 480 * scale) * 0.5 + 0.5)
 
     love.graphics.setCanvas({CANVAS, stencil = true})
-    love.graphics.clear(true, true)
+    love.graphics.clear(true, true, true)
 
     love.graphics.push()
 
@@ -139,22 +162,34 @@ function love.draw()
     love.graphics.pop()
 
     love.graphics.push()
-
         love.graphics.setCanvas()
         love.graphics.translate(draw_x, draw_y)
         love.graphics.setColor(1, 1, 1)
-        
-        if (CANVAS_USE_SHADER and CANVAS_SHADER) then
-            love.graphics.setShader(CANVAS_SHADER)
-            love.graphics.draw(CANVAS)
-            love.graphics.setShader()
+
+        local shaders = global:GetVariable("ScreenShaders") or {}
+
+        if (#shaders > 0) then
+            local source = CANVAS
+            local target = INTERMEDIATE_CANVAS
+
+            for _, shader in ipairs(shaders) do
+                love.graphics.setCanvas(target)
+                love.graphics.clear()
+
+                love.graphics.setShader(shader)
+                love.graphics.draw(source)
+                love.graphics.setShader()
+
+                source, target = target, source
+            end
+
+            love.graphics.setCanvas()
+            love.graphics.draw(source)
         else
             love.graphics.draw(CANVAS)
         end
-
     love.graphics.pop()
 end
-
 
 function love.keypressed(key)
 
@@ -168,10 +203,11 @@ function love.keypressed(key)
     end
     if (key == "f4") then
         love.window.setFullscreen(not love.window.getFullscreen(), "desktop")
-        scale = math.min(love.graphics.getWidth() / 640, love.graphics.getHeight() / 480)
+        scale = math.min(love.graphics.getWidth() / LOGICAL_WIDTH, love.graphics.getHeight() / LOGICAL_HEIGHT)
     end
     if (key == "f2") then
-        scenes.switchTo("scene_logo")
+        _CAMERA_:setPosition(0, 0)
+        scenes.switchTo(reset_room)
     end
 
 end

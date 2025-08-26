@@ -3,7 +3,7 @@ local GB = {
 }
 local functions = {
     Beam = function(gb, angle)
-        local beam = sprites.CreateSprite("Blaster/" .. gb.sprite_path .. "beam.png", 899)
+        local beam = sprites.CreateSprite("Blaster/" .. gb.sprite_path .. "beam.png", 899 + global:GetVariable("LAYER"))
         beam['relative_angle'] = angle
         beam.rotation = gb.blaster.rotation + angle - 90
         beam:MoveTo(gb.blaster.x, gb.blaster.y)
@@ -56,7 +56,7 @@ function GB:New(begin, final, angles, waittime, firingtime, sprite_prefix, sound
     gb.sounds_path = (sounds_prefix or "")
 
     audio.PlaySound("Blaster/" .. gb.sounds_path .. "snd_intro.wav", false)
-    gb.blaster = sprites.CreateSprite("Blaster/" .. gb.sprite_path .. "spr_gasterblaster_0.png", 900)
+    gb.blaster = sprites.CreateSprite("Blaster/" .. gb.sprite_path .. "spr_gasterblaster_0.png", 900 + global:GetVariable("LAYER"))
     gb.blaster:Scale(2, 2)
     gb.blaster.rotation = gb.angles[1]
     gb.blaster:MoveTo(gb.begin[1], gb.begin[2])
@@ -136,6 +136,7 @@ function GB:Update()
                         b.yscale = gb.blaster.xscale + 0.25 + 1 * math.sin(gb.firingtime / 4) / 5
                     else
                         b['HurtMode'] = "safe"
+                        b.isBullet = false
                         b.alpha = b.alpha - 0.05
                         b.yscale = b.yscale + (0 - b.yscale) / 8
                         if (b.alpha <= 0) then

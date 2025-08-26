@@ -5,9 +5,14 @@ shader:send("color_tr", {0, 0, 1, 1})
 shader:send("color_br", {0, 1, 0, 1})
 shader:send("color_bl", {1, 1, 0, 1})
 
+local blurshader = love.graphics.newShader("Scripts/Shaders/blur")
+blurshader:send("radius", 1)
+blurshader:send("direction", {1, 0})
+
 local frame = 0
 local bul = sprites.CreateSprite("poseur.png", 10)
---bul:SetShaders({shader})
+bul.color = {1, 1, 0}
+
 tween.CreateTween(
     function(value) bul.rotation = value bul.x = value end,
     "back", "inout", 0, 360, 120

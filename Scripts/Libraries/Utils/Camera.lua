@@ -70,6 +70,14 @@ function Camera:setBounds(minX, minY, maxX, maxY)
     self.boundActive = true
 end
 
+function Camera:setBoundsBlock(x, y, w, h)
+    self.minX = x
+    self.minY = y
+    self.maxX = x + w
+    self.maxY = y + h
+    self.boundActive = true
+end
+
 function Camera:update(dt)
     if (self.shakeTime > 0) then
         self.shakeTime = self.shakeTime - 1

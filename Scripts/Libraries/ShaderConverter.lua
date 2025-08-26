@@ -79,24 +79,8 @@ function converter.setConfigs(config_table)
     end
 end
 
---[[
-
-current target shader:
-
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    // Normalized pixel coordinates (from 0 to 1)
-    vec2 uv = fragCoord/iResolution.xy;
-
-    // Time varying pixel color
-    vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
-
-    // Output to screen
-    fragColor = vec4(col,1.0);
-}
-
-]]
-
+---Use this function to convert a shader code from shadertoy to love2d's.
+---@param code any
 function converter.ConvertShader(code)
     local result = ""
 
@@ -141,6 +125,7 @@ function converter.ConvertShader(code)
     converter.result = code
 end
 
+---Prints the result of the shader conversion.
 function converter.printResult()
     local lines = {}
     for line in converter.result:gmatch("[^\r\n]+") do

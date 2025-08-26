@@ -358,6 +358,10 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
         intensity = 0
     }
 
+    -- Callback functions.
+    typer.OnComplete = function() end
+    typer.OnUpdating = function() end
+
     local function getFont(fontname, size)
         local key = fontname .. "_" .. tostring(size)
         if (not typer.fontCache[key]) then
@@ -384,12 +388,12 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                 if (typer.canskip and not typer.skipping and not typer.waitingforKey) then
                     if (keyboard.GetState("cancel") == 1) then
                         typer.skipping = true
-                        typer.skipcount = #sentence - typer.counter
+                        typer.skipcount = #sentence - typer.counter + 1
                     end
                     if (typer.allowCtrlSkip) then
                         if (keyboard.GetState("menu") >= 1) then
                             typer.skipping = true
-                            typer.skipcount = #sentence - typer.counter
+                            typer.skipcount = #sentence - typer.counter + 1
                         end
                     end
                 end
@@ -618,6 +622,9 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                     end
 
                     if (typer.cantype) then
+                        if (typer.OnUpdating) then
+                            typer.OnUpdating()
+                        end
                         if (typer.canvoice and not typer.skipping) then
                             if (#typer.voices > 0) then
                                 local randomVoice = math.random(1, #typer.voices)
@@ -661,7 +668,7 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                         instance.color = typer.color
                         instance.alpha_attached = 0
                         instance.font = font
-                        instance.char = letter
+                        instance.char = love.graphics.newText(font, letter)
                         table.insert(typer.letters, instance)
                         typer.positions.main[1] = typer.positions.main[1] + (width + typer.positions.offset[typer.currentfont][1] + typer.positions.spacing[1]) * typer.scale
                     end
@@ -680,6 +687,9 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                             typer.sentence = typer.sentence + 1
                             typer:Reset()
                         else
+                            if (typer.OnComplete) then
+                                typer.OnComplete()
+                            end
                             typer:Reset()
                             typer.isactive = false
                             typer:Destroy()
@@ -692,6 +702,9 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                             typer.sentence = typer.sentence + 1
                             typer:Reset()
                         else
+                            if (typer.OnComplete) then
+                                typer.OnComplete()
+                            end
                             typer:Reset()
                             typer.isactive = false
                             typer:Destroy()
@@ -728,18 +741,18 @@ function typers.CreateText(sentences, position, layer, bubblesize, progressmode)
                     local angle = math.rad(letter.rotation)
                     local sx, sy = letter.xscale, letter.yscale
 
-                    local char = (letter.char or "?")
+                    local char = (letter.char)
                     love.graphics.setFont(letter.font)
                     if (letter.shadow) then
                         love.graphics.setColor(typer.shadow.color)
-                        love.graphics.print(
+                        love.graphics.draw(
                             char,
                             x + 2, y + 2,
                             angle, sx, sy
                         )
                     end
                     love.graphics.setColor(letter.color)
-                    love.graphics.print(
+                    love.graphics.draw(
                         char,
                         x, y,
                         angle, sx, sy
@@ -848,9 +861,10 @@ function typers.DrawText(text, position, layer)
                         currentOffsetY = 3
                         currentScale = 2
                         typer.charspacing = 10
-                    elseif (presetKey == "ch-d") then
+                    elseif (presetKey == "chd") then
                         currentFont = "simsun.ttc"
                         currentSize = 13
+                        currentOffsetX = 0
                         currentOffsetY = 3
                         currentScale = 2
                         typer.charspacing = 10
@@ -918,7 +932,8 @@ function typers.DrawText(text, position, layer)
                 charWidth = charWidth * 1.5
             end
 
-            love.graphics.print(piece.char, cx + (piece.offsetX or 0), self.y + (piece.offsetY or 0), 0, piece.scale, piece.scale)
+            local tc = love.graphics.newText(font, piece.char)
+            love.graphics.draw(tc, cx + (piece.offsetX or 0), self.y + (piece.offsetY or 0), 0, piece.scale, piece.scale)
             cx = cx + charWidth + self.charspacing
         end
 

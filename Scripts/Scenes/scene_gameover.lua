@@ -53,18 +53,16 @@ function SCENE.update(dt)
         heart:Destroy()
     end
     if (time == 180) then
-        mus, ins = audio.PlayMusic("mus_gameover.ogg", 0, false)
+        mus, ins = audio.PlayMusic("mus_gameover.ogg", 0, true)
         ins:VolumeTransition(0, 1, 1.4)
     end
     if (time >= 180 and time <= 280) then
         gameover.alpha = gameover.alpha + 0.01
     end
     if (time == 240) then
-        typers.CreateText({
-            "[voice:v_fluffybuns.wav][speed:0.5]* Our fate rests\n  upon you...",
-            "[voice:v_fluffybuns.wav][speed:0.5]* Chara!\n* Stay determined.",
-            "[noskip][function:LeaveScene]"
-        }, {120, 300}, 15, {0, 0}, "manual")
+        local tee = localizetext("zh_CN", "GameoverText", {battle.Player.name})
+        tee[#tee + 1] = "[noskip][function:LeaveScene]"
+        typers.CreateText(tee, {120, 300}, 15, {0, 0}, "manual")
     end
 
     if (leaving) then

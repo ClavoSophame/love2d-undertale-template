@@ -25,6 +25,7 @@ end
 function SCENE.clear()
     -- Clear any resources used by this scene here.
     -- For example, you might unload images, sounds, etc.
+    layers.clear()
 end
 
 -- Don't touch this(just one line).

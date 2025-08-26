@@ -55,6 +55,12 @@ local functions = {
         if (#self.shaders.sources == 0) then
             self.shaders.use = false
         end
+
+        self.color[4] = self.alpha
+        for _, shader in pairs(self.shaders.sources)
+        do
+            shader:send("sColor", self.color or {1, 1, 1, 1})
+        end
     end,
     SetParent = function(self, parent)
         if (parent) then
@@ -66,9 +72,18 @@ local functions = {
         end
     end,
     Dust = function(self, sound)
+        self.dust.totaltime = 1.2
         self.dust.use = true
         self.dust.shader = love.graphics.newShader("Scripts/Shaders/dust")
         self.dust.shader:send("screen_size_inv", {1 / self.width, 1 / self.height})
+
+        self.color[4] = self.alpha
+        self.dust.shader:send("sColor", self.color or {1, 1, 1, 1})
+        self.dust.image = love.graphics.newCanvas(self.width, self.height)
+        self.dust.iter_image = love.graphics.newCanvas(self.width, self.height)
+        love.graphics.setCanvas(self.dust.image)
+        love.graphics.draw(self.image)
+        love.graphics.setCanvas()
         if (sound) then
             audio.PlaySound("snd_dust.wav")
         end
@@ -80,6 +95,10 @@ local functions = {
                 if (sprite.dust.shader) then
                     sprite.dust.shader:release()
                     sprite.dust.shader = nil
+                    sprite.dust.image:release()
+                    sprite.dust.iter_image:release()
+                    sprite.dust.image = nil
+                    sprite.dust.iter_image = nil
                 end
                 for i = #sprite.shaders, 1, -1
                 do
@@ -151,6 +170,7 @@ function sprites.CreateSprite(path, layer)
     sprite.absx = 0
     sprite.absy = 0
     sprite.velocity = {x = 0, y = 0}
+    sprite.speed = {x = 0, y = 0}
     sprite.xshear = 0
     sprite.yshear = 0
     sprite.xscale = 1
@@ -169,39 +189,62 @@ function sprites.CreateSprite(path, layer)
         if (sprite.isactive) then
             love.graphics.push()
 
-            if (sprite.shaders.use) then
-                if (#sprite.shaders.sources > 0) then
-                    for i = 1, #sprite.shaders.sources do
-                        love.graphics.setShader(sprite.shaders.sources[i])
+                if (not sprite.shaders.use or #sprite.shaders.sources <= 1) then
+                    if (sprite.shaders.use and #sprite.shaders.sources == 1) then
+                        love.graphics.setShader(sprite.shaders.sources[1])
+                    else
+                        if not sprite.tempCanvas then
+                            sprite.tempCanvas = love.graphics.newCanvas(sprite.image:getWidth(), sprite.image:getHeight())
+                        end
+                        
+                        local source = sprite.image
+                        local target = sprite.tempCanvas
+                        
+                        -- 应用每个shader
+                        for _, shader in ipairs(sprite.shaders.sources) do
+                            love.graphics.setCanvas(target)
+                            love.graphics.clear()
+                            
+                            love.graphics.setShader(shader)
+                            love.graphics.draw(source)
+                            love.graphics.setShader()
+                            
+                            source, target = target, source
+                        end
                     end
                 end
-            end
 
-            if (sprite.dust.use) then
-                love.graphics.setShader(sprite.dust.shader)
-            end
+                if (sprite.dust.use) then
+                    love.graphics.setShader(sprite.dust.shader)
+                end
 
-            if (sprite.stencils.use) then
-                love.graphics.clear(false, false, true, 0)
-                masks.Draw(sprite.stencils.sources)
-                love.graphics.setStencilTest("greater", 0)
-            end
+                if (sprite.stencils.use) then
+                    love.graphics.clear(false, false, true, 0)
+                    masks.Draw(sprite.stencils.sources)
+                    love.graphics.setStencilTest("greater", 0)
+                end
 
-            if (sprite.alpha > 1) then sprite.alpha = 1 end
-            if (sprite.alpha < 0) then sprite.alpha = 0 end
-            sprite.color[4] = sprite.alpha
-            love.graphics.setColor(sprite.color)
+                if (sprite.alpha > 1) then sprite.alpha = 1 end
+                if (sprite.alpha < 0) then sprite.alpha = 0 end
+                sprite.color[4] = sprite.alpha
+                love.graphics.setColor(sprite.color)
 
-            sprite.width = sprite.image:getWidth()
-            sprite.height = sprite.image:getHeight()
-            love.graphics.draw(sprite.image, sprite.x, sprite.y, math.rad(sprite.rotation), sprite.xscale, sprite.yscale, sprite.xpivot * sprite.width, sprite.ypivot * sprite.height, sprite.xshear, sprite.yshear)
+                sprite.width = sprite.image:getWidth()
+                sprite.height = sprite.image:getHeight()
 
-            if (sprite.dust.use) then
+                if (sprite.dust.use) then
+                    love.graphics.draw(sprite.dust.image, sprite.x, sprite.y, math.rad(sprite.rotation), sprite.xscale, sprite.yscale, sprite.xpivot * sprite.width, sprite.ypivot * sprite.height, sprite.xshear, sprite.yshear)
+                else
+                    love.graphics.draw(sprite.image, sprite.x, sprite.y, math.rad(sprite.rotation), sprite.xscale, sprite.yscale, sprite.xpivot * sprite.width, sprite.ypivot * sprite.height, sprite.xshear, sprite.yshear)
+                end
+
+                if (sprite.dust.use) then
+                    love.graphics.setShader()
+                end
+
+                masks.reset()
                 love.graphics.setShader()
-            end
 
-            masks.reset()
-            love.graphics.setShader()
             love.graphics.pop()
         end
     end
@@ -212,10 +255,95 @@ function sprites.CreateSprite(path, layer)
     return sprite
 end
 
+
+function sprites.CreateSpriteAtlas(path, x, y, w, h, layer)
+    local sprite = sprites.CreateSprite(path, layer)
+    sprite.quad = love.graphics.newQuad(x, y, w, h, sprite.image:getDimensions())
+    sprite.quadArea = {
+        x = x,
+        y = y,
+        w = w,
+        h = h
+    }
+    sprite.xpivot = (x + w / 2) / sprite.width
+    sprite.ypivot = (y + h / 2) / sprite.height
+
+    function sprite:Draw()
+        if (self.isactive) then
+            love.graphics.push()
+
+                if (not sprite.shaders.use or #sprite.shaders.sources <= 1) then
+                    if (sprite.shaders.use and #sprite.shaders.sources == 1) then
+                        love.graphics.setShader(sprite.shaders.sources[1])
+                    else
+                        if not sprite.tempCanvas then
+                            sprite.tempCanvas = love.graphics.newCanvas(sprite.image:getWidth(), sprite.image:getHeight())
+                        end
+                        
+                        local source = sprite.image
+                        local target = sprite.tempCanvas
+                        
+                        -- 应用每个shader
+                        for _, shader in ipairs(sprite.shaders.sources) do
+                            love.graphics.setCanvas(target)
+                            love.graphics.clear()
+                            
+                            love.graphics.setShader(shader)
+                            love.graphics.draw(source)
+                            love.graphics.setShader()
+                            
+                            source, target = target, source
+                        end
+                    end
+                end
+
+                if (sprite.dust.use) then
+                    love.graphics.setShader(sprite.dust.shader)
+                end
+
+                if (sprite.stencils.use) then
+                    love.graphics.clear(false, false, true, 0)
+                    masks.Draw(sprite.stencils.sources)
+                    love.graphics.setStencilTest("greater", 0)
+                end
+
+                if (sprite.alpha > 1) then sprite.alpha = 1 end
+                if (sprite.alpha < 0) then sprite.alpha = 0 end
+                sprite.color[4] = sprite.alpha
+                love.graphics.setColor(sprite.color)
+
+                sprite.width = sprite.quadArea.w
+                sprite.height = sprite.quadArea.h
+
+                if (sprite.dust.use) then
+                    love.graphics.draw(sprite.dust.image, sprite.quad, sprite.x, sprite.y, math.rad(sprite.rotation), sprite.xscale, sprite.yscale, sprite.xpivot * sprite.width, sprite.ypivot * sprite.height, sprite.xshear, sprite.yshear)
+                else
+                    love.graphics.draw(sprite.image, sprite.quad, sprite.x, sprite.y, math.rad(sprite.rotation), sprite.xscale, sprite.yscale, sprite.xpivot * sprite.width, sprite.ypivot * sprite.height, sprite.xshear, sprite.yshear)
+                end
+
+                if (sprite.dust.use) then
+                    love.graphics.setShader()
+                end
+
+                masks.reset()
+                love.graphics.setShader()
+                
+            love.graphics.pop()
+        end
+    end
+
+    return sprite
+end
+
 function sprites.Update(dt)
     for _, sprite in ipairs(sprites.images) do
+        local prevX, prevY = sprite.x, sprite.y
+
         sprite.x = sprite.x + sprite.velocity.x
         sprite.y = sprite.y + sprite.velocity.y
+
+        sprite.speed.x = sprite.x - prevX
+        sprite.speed.y = sprite.y - prevY
 
         if (#sprite.animation.frames > 0) then
             sprite.animation.time = sprite.animation.time + 1
@@ -245,12 +373,24 @@ function sprites.Update(dt)
 
         if (sprite.dust.use) then
             sprite.dust.time = sprite.dust.time + dt
+            local time_rate = sprite.dust.time / sprite.dust.totaltime
 
             local shader = sprite.dust.shader
             shader:send("dt", dt)
-            shader:send("scan_y", sprite.dust.time * 1)
+            if (time_rate <= 1.0) then
+                --local position_rate = time_rate * time_rate * (3 - 2 * time_rate)
+                local position_rate = time_rate * time_rate * time_rate * (time_rate * (time_rate * 6 - 15) + 10)
+                shader:send("scan_y", position_rate)
+                love.graphics.setCanvas(sprite.dust.iter_image)
+                    love.graphics.clear()
+                    love.graphics.setShader(shader)
+                        love.graphics.draw(sprite.dust.image)
+                    love.graphics.setShader()
+                love.graphics.setCanvas()
+                sprite.dust.image, sprite.dust.iter_image = sprite.dust.iter_image, sprite.dust.image
+            end
             
-            if (sprite.dust.time >= 1) then
+            if (time_rate >= 1.0) then
                 sprite:Destroy()
             end
         end

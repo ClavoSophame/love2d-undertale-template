@@ -3,6 +3,9 @@ safejson.json = require("Scripts.Libraries.Utils.dkjson")
 
 safejson.config = {
     badwords = {
+        ["__index"] = true,
+        ["coroutine"] = true,
+        ["getmetatable"] = true,
         ["eval"] = true,
         ["exec"] = true,
         ["execscript"] = true,  -- execScript → execscript
@@ -51,6 +54,13 @@ local error_types = {
     OVER_LIMIT = 4      -- 超出限制
 }
 
+-- 在precheck_json和check_object_safety中增加Unicode规范化
+local function normalize_unicode(str)
+    return str:gsub("\\u([%da-fA-F][%da-fA-F][%da-fA-F][%da-fA-F])", function(u)
+        return utf8.char(tonumber(u, 16)):lower()
+    end)
+end
+
 local function precheck_json(str)
     if str:find("\\u[0-9a-fA-F][0-9a-fA-F]00") then  -- 检测可能的空字符变种
         return false, "Suspicious Unicode escape sequence"
@@ -60,6 +70,9 @@ local function precheck_json(str)
     end
     if str:find("%[.-%].-:%[") then
         return false, "Array injection pattern detected"
+    end
+    if str:find("\\u?0+0") or str:find("\\x0 * 0") then
+        return false, "Null byte bypass attempt"
     end
     return true
 end
@@ -82,7 +95,8 @@ local function anti_tamper_check()
 end
 
 local function check_resource_limits()
-    if collectgarbage("count") > 100 * 1024 then
+    local max_mem = 100 * 1024 * 1024 -- 100MB
+    if collectgarbage("count") * 1024 > max_mem then
         return false, "Memory limit exceeded"
     end
     return true
@@ -149,6 +163,11 @@ local function check_object_safety(obj, path, visited, item_count, depth, config
 end
 
 function safejson.parse(jsonString, options)
+    -- Turn all letters to lowercase for uniformity
+    if type(jsonString) == "string" then
+        jsonString = normalize_unicode(jsonString)
+    end
+
     local ok, err = check_bom(jsonString)
     if not ok then return nil, err, error_types.MALFORMED end
 

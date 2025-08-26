@@ -32,6 +32,7 @@ local mask1 = masks.New("rectangle", 320, 320, 155, 130, 0, 1)
 
 -- This is how we init a shader.
 local shader = love.graphics.newShader("Scripts/Shaders/gradient")
+local invert = love.graphics.newShader("Scripts/Shaders/invert")
 
 -- You need to send the colors to the shader.
 shader:send("color_tl", {1, 0, 0, 1})

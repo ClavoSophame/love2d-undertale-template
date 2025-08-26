@@ -6,6 +6,7 @@ scenes.name_current  = ""
 
 function scenes.switchTo(sceneName, ...)
     if (scenes.current) then
+        scenes.current.update = function() end
         if (scenes.current.clear) then
             scenes.current.clear()
             collectgarbage("collect")

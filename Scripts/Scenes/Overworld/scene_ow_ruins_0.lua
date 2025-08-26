@@ -6,10 +6,11 @@ local SCENE = {}
 local sti = require("Scripts.Libraries.STI")
 local love = require("love")
 
-DATA = global:GetSaveVariable("Overworld") or
+DATA = DATA or global:GetSaveVariable("Overworld") or
 {
     time = 0,
-    room = "--",
+    room_name = "--",
+    room = "Overworld/scene_ow_ruins_0",
     marker = 1,
     player = {
         name = "Chara",
@@ -18,6 +19,7 @@ DATA = global:GetSaveVariable("Overworld") or
         hp = 20,
 
         gold = 0,
+        exp = 0,
 
         atk = 0,
         watk = 0,
@@ -27,32 +29,33 @@ DATA = global:GetSaveVariable("Overworld") or
         armor = "[preset=chinese]绷带",
 
         items = {
-            "[preset=chinese][offsetX=20]神秘小礼物",
-            "[preset=chinese][offsetX=20]铁壶",
-            "[preset=chinese][offsetX=20]吃我",
-            "[preset=chinese][offsetX=20]安黛因的信",
-            "[preset=chinese][offsetX=20]传单",
-            "[preset=chinese][offsetX=20]别欺负我",
+            "[preset=chinese]神秘小礼物",
+            "[preset=chinese]铁壶",
+            "[preset=chinese]吃我",
+            "[preset=chinese]安黛因的信",
+            "[preset=chinese]传单",
+            "[preset=chinese]别欺负我",
         },
         cells = {}
     },
     position = {0, 0},
-    savedpos = false
+    direction = "down",
+    savedpos = false,
 }
-FLAG = global:GetSaveVariable("Flag") or
+FLAG = FLAG or global:GetSaveVariable("Flag") or
 {
+    ruins_killed = 0,
     ruins_0 = {
         donut_chest = false,
         text_inst = false
     }
 }
-CHESTS = global:GetSaveVariable("Chests") or
+CHESTS = CHESTS or global:GetSaveVariable("Chests") or
 {
     chest1 = {
-        "[preset=chinese][offsetX=20][red]蜘蛛",
+        "[preset=chinese][red]蜘蛛",
     }
 }
-
 if (not global:GetSaveVariable("Overworld")) then
     global:SetSaveVariable("Overworld", DATA)
 end
@@ -62,7 +65,12 @@ end
 if (not global:GetSaveVariable("Chests")) then
     global:SetSaveVariable("Chests", CHESTS)
 end
+
 local stat = require("Scripts.Libraries.Overworld.Stat")
+local encounter = require("Scripts.Libraries.Overworld.EncounterStep")
+encounter.Init(FLAG.ruins_killed, 240, 40, 3)
+encounter.run = true
+
 local function TPos(x, y)
     return _CAMERA_.x + x, _CAMERA_.y + y
 end
@@ -74,7 +82,7 @@ local WARPSCREEN = sprites.CreateSprite("px.png", 100000)
 WARPSCREEN:Scale(9999, 9999)
 WARPSCREEN.color = {0, 0, 0}
 WARPSCREEN:MoveTo(TPos(320, 240))
-local DEBUG_MODE = false
+local DEBUG_MODE = true
 local SCALE_FACTOR = 2
 local PLAYER_SPEED = 200
 local ANIMATION_FRAME_TIME = 0.16
@@ -163,9 +171,18 @@ local objects = {
     saves = {},
     texts = {}
 }
-local ENCOUNTER = 0
+local ENCOUNTER = false
+local ENCTIME = 0
+local enc_animtime = 0
 
 -- Player configuration
+local exc = sprites.CreateSprite("Overworld/spr_exc.png", 12000)
+exc:Scale(2, 2)
+if (DATA.player.lv >= 10) then
+    exc:Set("Overworld/spr_exc_f.png")
+end
+exc.alpha = 0
+
 local player = {
     sprites = {
         up = {
@@ -213,19 +230,16 @@ local map = {
 
 -- Load map and initialize objects
 local function initializeMap()
-    global:SetVariable("ROOM", "ruins_0")
+    global:SetVariable("ROOM", "scene_ow_ruins_0")
     map.instance = sti("Maps/ruins_0.lua", {"box2d"})
     map.instance.draw_objects = false
-    
-    map.instance:box2d_init(world, {
-        layers = {"chests", "walls", "signs"}
-    })
-    
+    map.instance:box2d_init(world)
+
     for _, layer in ipairs(map.instance.layers) do
         if (layer.name == "marks") then
             for _, obj in ipairs(layer.objects) do
                 table.insert(objects.marks, {
-                    x = obj.x, 
+                    x = obj.x,
                     y = obj.y,
                     direction = obj.properties.direction or "right",
                     id = obj.properties.id or 0
@@ -246,7 +260,7 @@ local function initializeMap()
                     give = (obj.properties.give or false)
                 })
 
-                local body = love.physics.newBody(world, 
+                local body = love.physics.newBody(world,
                     (obj.x + obj.width/2 + 160) * SCALE_FACTOR,
                     (obj.y + obj.height/2 + 125) * SCALE_FACTOR,
                     "static")
@@ -258,7 +272,7 @@ local function initializeMap()
             end
         elseif (layer.name == "warps") then
             for _, obj in ipairs(layer.objects) do
-                local body = love.physics.newBody(world, 
+                local body = love.physics.newBody(world,
                     (obj.x + obj.width/2 + 160) * SCALE_FACTOR,
                     (obj.y + obj.height/2 + 125) * SCALE_FACTOR,
                     "static")
@@ -275,7 +289,7 @@ local function initializeMap()
             end
         elseif (layer.name == "walls") then
             for _, obj in ipairs(layer.objects) do
-                local body = love.physics.newBody(world, 
+                local body = love.physics.newBody(world,
                     (obj.x + obj.width/2 + 160) * SCALE_FACTOR,
                     (obj.y + obj.height/2 + 120) * SCALE_FACTOR,
                     "static")
@@ -399,31 +413,31 @@ local function initializePlayer()
     player.direction = startMark.direction
     local sx, sy = startMark.x, startMark.y
 
-    if (DATA.savedpos and not global:GetVariable("OverworldInited")) then
-        global:SetVariable("OverworldInited", true)
+    if (DATA.savedpos) then
         sx, sy = unpack(DATA.position)
+        player.direction = DATA.direction
     end
-    
+
     player.currentSprite = sprites.CreateSprite(
         player.sprites[player.direction][1],
         1
     )
     player.currentSprite:Scale(SCALE_FACTOR, SCALE_FACTOR)
-    
+
     -- Player collision setup
     player.collision.body = love.physics.newBody(
-        world, 
+        world,
         sx * 2 + 320,
         sy * 2 + 240,
         "dynamic"
     )
     player.collision.shape = love.physics.newRectangleShape(40, 20)
     player.collision.fixture = love.physics.newFixture(
-        player.collision.body, 
-        player.collision.shape, 
+        player.collision.body,
+        player.collision.shape,
         1
     )
-    
+
     player.collision.body:setFixedRotation(true)
     player.collision.fixture:setRestitution(0)
     player.collision.fixture:setFriction(0.1)
@@ -441,19 +455,19 @@ function startSave(id)
     saveb.white:MoveTo(TPos(320, 200))
     saveb.black:MoveTo(TPos(320, 200))
     TYPERHEART:MoveTo(TPos(150, 255))
-    
+
     saveb.info.x, saveb.info.y = TPos(140, 135)
     local tm = global:GetSaveVariable("Overworld")
     local minutes = math.floor(tm.time / 60)
     local seconds = math.floor(tm.time % 60)
-    saveb.info:SetText(string.format("Chara    LV 1    %02d:%02d", minutes, seconds))
+    saveb.info:SetText(string.format("Chara    LV " .. DATA.player.lv .. "    %02d:%02d", minutes, seconds))
     saveb.info:Reparse()
 
     saveb.room.x, saveb.room.y = TPos(120, 180)
     for _, save in ipairs(objects.saves)
     do
         if (save.id == id) then
-            saveb.room:SetText("[preset=chinese][offsetX=20]" .. DATA.room)
+            saveb.room:SetText("[preset=chinese][offsetX=20]" .. DATA.room_name)
         end
     end
     saveb.room:Reparse()
@@ -476,7 +490,7 @@ local function beginContact(a, b, coll)
     local fixtureA, fixtureB = a, b
     local dataA = fixtureA:getUserData()
     local dataB = fixtureB:getUserData()
-    
+
     if (dataA and dataA.type == "player" and dataB and dataB.type == "wall") or
        (dataB and dataB.type == "player" and dataA and dataA.type == "wall") then
         if DEBUG_MODE then
@@ -542,7 +556,7 @@ end
 local function endContact(a, b, coll)
     local dataA = (a:getUserData() or {})
     local dataB = (b:getUserData() or {})
-    
+
     -- 玩家离开牌子
     if (dataA.type == "player" and dataB.type == "sign") or
        (dataB.type == "player" and dataA.type == "sign") then
@@ -573,44 +587,44 @@ end
 -- Debug drawing for physics fixtures
 local function drawFixture(fixture)
     if not fixture or not fixture:getShape() then return end
-    
+
     local shape = fixture:getShape()
     local body = fixture:getBody()
     local shapeType = shape:getType()
-    
+
     -- Draw fill
     love.graphics.setColor(1, 0, 0, 0.3)
-    
+
     if shapeType == "polygon" then
         love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))
     elseif shapeType == "circle" then
         love.graphics.circle("fill", body:getX(), body:getY(), shape:getRadius())
     elseif shapeType == "rectangle" then
-        love.graphics.rectangle("fill", 
-            body:getX() - shape:getWidth()/2, 
+        love.graphics.rectangle("fill",
+            body:getX() - shape:getWidth()/2,
             body:getY() - shape:getHeight()/2,
-            shape:getWidth(), 
+            shape:getWidth(),
             shape:getHeight())
     else
         love.graphics.circle("fill", body:getX(), body:getY(), 5)
     end
-    
+
     -- Draw outline
     love.graphics.setColor(1, 0.5, 0, 0.8)
     love.graphics.setLineWidth(2)
-    
+
     if shapeType == "polygon" then
         love.graphics.polygon("line", body:getWorldPoints(shape:getPoints()))
     elseif shapeType == "circle" then
         love.graphics.circle("line", body:getX(), body:getY(), shape:getRadius())
     elseif shapeType == "rectangle" then
-        love.graphics.rectangle("line", 
-            body:getX() + shape:getWidth()/2, 
+        love.graphics.rectangle("line",
+            body:getX() + shape:getWidth()/2,
             body:getY() - shape:getHeight()/2,
-            shape:getWidth(), 
+            shape:getWidth(),
             shape:getHeight())
     end
-    
+
     love.graphics.setLineWidth(1)
 end
 
@@ -619,7 +633,7 @@ function SCENE.load()
     initializeMap()
     initializePlayer()
     world:setCallbacks(beginContact, endContact)
-    
+
     if DEBUG_MODE then
         for _, mark in ipairs(objects.marks) do
             print(string.format(
@@ -631,55 +645,116 @@ function SCENE.load()
 end
 
 function SCENE.update(dt)
-    world:update(dt)
+    world:update(1/60)
+    print(player.currentSprite.x, player.currentSprite.y)
 
-    if (WARPSCREEN) then
+    if (WARPSCREEN and stat.interact ~= 100) then
         WARPSCREEN.alpha = WARPSCREEN.alpha - 0.05
         WARPSCREEN:MoveTo(TPos(320, 240))
     end
-    
+
     -- Update player position from physics body
     if (player.collision.body) then
         player.currentSprite.x = player.collision.body:getX()
         player.currentSprite.y = player.collision.body:getY() - 20
     end
-    
+
     stat.under = (player.currentSprite.y - _CAMERA_.y) > 300
     DATA.time = DATA.time + dt
 
-    if (stat.interact == 0 or stat.interact == 2 or stat.interact == 3) then
+    if (stat.interact ~= 100) then
         _CAMERA_:setPosition(
-            player.currentSprite.x - SCREEN_CENTER_X, 
+            player.currentSprite.x - SCREEN_CENTER_X,
             player.currentSprite.y - SCREEN_CENTER_Y
         )
     end
-    
-    if stat.interact == 0 then
-        local vx, vy = 0, 0
-        
-        -- Handle input
-        if keyboard.GetState("up") >= 1 then
-            vy = -PLAYER_SPEED
-            player.direction = "up"
-        elseif keyboard.GetState("down") >= 1 then
-            vy = PLAYER_SPEED
-            player.direction = "down"
-        end
-        
-        if keyboard.GetState("left") >= 1 then
-            vx = -PLAYER_SPEED
-            player.direction = "left"
-        elseif keyboard.GetState("right") >= 1 then
-            vx = PLAYER_SPEED
-            player.direction = "right"
-        end
-        
-        player.collision.body:setLinearVelocity(vx, vy)
-        
+    stat:Update(dt)
+
+    if (map) then
         -- Update map position to follow player
         map.x = SCREEN_CENTER_X - player.currentSprite.x / 2
         map.y = SCREEN_CENTER_Y - player.currentSprite.y / 2
-        
+    end
+
+    if (encounter.encountered or encounter.nobodycame) then
+        stat.interact = 100
+        enc_animtime = enc_animtime + 1
+        if (enc_animtime == 1) then
+            DATA.savedpos = true
+            DATA.position = {
+                (player.currentSprite.x - 320) / 2,
+                (player.currentSprite.y - 220) / 2
+            }
+            DATA.direction = player.direction
+            player.animationFrame = 1
+            player.collision.body:setLinearVelocity(0, 0)
+            exc:MoveTo(
+                player.currentSprite.x,
+                player.currentSprite.y - 40
+            )
+            WARPSCREEN:MoveTo(
+                player.currentSprite.x,
+                player.currentSprite.y
+            )
+            TYPERHEART:MoveTo(
+                player.currentSprite.x,
+                player.currentSprite.y
+            )
+            TYPERHEART.layer = 9999999
+            exc.alpha = 1
+        elseif (enc_animtime >= 60 and enc_animtime <= 90) then
+            exc.alpha = 0
+            if (enc_animtime % 5 == 0) then
+                TYPERHEART.alpha = 1 - TYPERHEART.alpha
+                WARPSCREEN.alpha = 1 - WARPSCREEN.alpha
+                if (TYPERHEART.alpha == 0) then
+                    audio.PlaySound("snd_tong.wav")
+                end
+            end
+        end
+        if (enc_animtime == 90) then
+            tween.CreateTween(
+                function (value)
+                    TYPERHEART.x = value
+                end,
+                "linear", "", TYPERHEART.x, _CAMERA_.x + 87 - 39, 30
+            )
+            tween.CreateTween(
+                function (value)
+                    TYPERHEART.y = value
+                end,
+                "linear", "", TYPERHEART.y, _CAMERA_.y + 453, 30
+            )
+        end
+        if (enc_animtime == 90 + 31) then
+            scenes.switchTo("scene_battle_ow")
+        end
+    end
+
+    if stat.interact == 0 then
+        local vx, vy = 0, 0
+
+        -- Handle input
+        if (stat.interact == 0) then
+            if keyboard.GetState("up") >= 1 then
+                vy = -PLAYER_SPEED
+                player.direction = "up"
+            elseif keyboard.GetState("down") >= 1 then
+                vy = PLAYER_SPEED
+                player.direction = "down"
+            end
+
+            if keyboard.GetState("left") >= 1 then
+                vx = -PLAYER_SPEED
+                player.direction = "left"
+            elseif keyboard.GetState("right") >= 1 then
+                vx = PLAYER_SPEED
+                player.direction = "right"
+            end
+        end
+
+        player.collision.body:setLinearVelocity(vx, vy)
+
         -- Handle animation
         if vx ~= 0 or vy ~= 0 then
             player.animationTime = player.animationTime + dt
@@ -784,6 +859,7 @@ function SCENE.update(dt)
                         end
                     elseif (finalInteractions.currentObject == "save") then
                         audio.PlaySound("snd_heal.wav")
+                        DATA.player.hp = DATA.player.maxhp
                         if (not stat.under) then dy = -150 end
                         if (stat.under) then dy = 150 end
                         block.white:MoveTo(TPos(x, 240 + dy))
@@ -798,7 +874,7 @@ function SCENE.update(dt)
                         for _, save in ipairs(objects.saves) do
                             if (save.id == 1 and id == 1) then
                                 save.triggered = save.triggered + 1
-                                if (save.triggered == 1) then
+                                --[[if (save.triggered == 1) then
                                     main_typer:SetText({
                                         "* [pattern:chinese][fontIndex:2]你摸到了这个房间的第一个存档点。",
                                         "* [pattern:chinese][fontIndex:2]这使你充满了决心。",
@@ -810,7 +886,20 @@ function SCENE.update(dt)
                                         "* [pattern:chinese][fontIndex:2]这又一次使你充满了决心。",
                                         "[noskip][function:startSave|" .. id .. "][next]"
                                     })
+                                end]]
+
+                                if (3 - FLAG.ruins_killed > 0) then
+                                    main_typer:SetText({
+                                        "[colorHEX:ff0000]* [pattern:chinese][fontIndex:2]还剩[pattern:english][fontIndex:1] " .. 3 - FLAG.ruins_killed ..  " [pattern:chinese][fontIndex:2]个。",
+                                        "[noskip][function:startSave|" .. id .. "][next]"
+                                    })
+                                else
+                                    main_typer:SetText({
+                                        "[colorHEX:ff0000]* [pattern:chinese][fontIndex:2]决心。",
+                                        "[noskip][function:startSave|" .. id .. "][next]"
+                                    })
                                 end
+
                             elseif (save.id == 2 and id == 2) then
                                 save.triggered = save.triggered + 1
                                 if (save.triggered >= 1) then
@@ -855,9 +944,24 @@ function SCENE.update(dt)
                 end
             end
         end
+
+        if (player.lastX == nil or player.lastY == nil) then
+            player.lastX = player.collision.body:getX()
+            player.lastY = player.collision.body:getY()
+        end
+
+        local px, py = player.collision.body:getX(), player.collision.body:getY()
+        local moved = (math.abs(px - player.lastX) > 0.1) or (math.abs(py - player.lastY) > 0.1)
+        if (moved) then
+            player.lastX = px
+            player.lastY = py
+            encounter.Update()
+        end
     else
         player.animationFrame = 1
-        player.collision.body:setLinearVelocity(0, 0)
+        if (stat.interact ~= 100) then
+            player.collision.body:setLinearVelocity(0, 0)
+        end
 
         if (stat.interact == 3) then
             if (WARP.warpping) then
@@ -875,7 +979,7 @@ function SCENE.update(dt)
             end
         end
     end
-    
+
     player.currentSprite:Set(player.sprites[player.direction][player.animationFrame])
     player.currentSprite.layer = 2000 + player.currentSprite.y
 
@@ -886,16 +990,20 @@ function SCENE.update(dt)
         elseif (keyboard.GetState("down") == 1) then
             if (boxcolumn == 1) then
                 boxrow = math.min(boxrow + 1, #DATA.player.items)
+                boxrow = math.max(boxrow, 1)
             else
                 boxrow = math.min(boxrow + 1, #CHESTS.chest1)
+                boxrow = math.max(boxrow, 1)
             end
         end
         if (keyboard.GetState("left") == 1) then
             boxcolumn = 1
             boxrow = math.min(boxrow, #DATA.player.items)
+            boxrow = math.max(boxrow, 1)
         elseif (keyboard.GetState("right") == 1) then
             boxcolumn = 2
             boxrow = math.min(boxrow, #CHESTS.chest1)
+            boxrow = math.max(boxrow, 1)
         end
 
         if (keyboard.GetState("confirm") == 1) then
@@ -904,7 +1012,7 @@ function SCENE.update(dt)
                     local item = DATA.player.items[boxrow]
                     table.insert(CHESTS.chest1, item)
                     table.remove(DATA.player.items, boxrow)
-                    if (item ~= "[preset=chinese][offsetX=20][red]蜘蛛") then
+                    if (item ~= "[preset=chinese][red]蜘蛛") then
                         for i = 1, 8 do
                             if (i <= #DATA.player.items) then
                                 boxtexts.inventory[i]:SetText(
@@ -933,7 +1041,7 @@ function SCENE.update(dt)
                     local item = CHESTS.chest1[boxrow]
                     table.insert(DATA.player.items, item)
                     table.remove(CHESTS.chest1, boxrow)
-                    if (item ~= "[preset=chinese][offsetX=20][red]蜘蛛") then
+                    if (item ~= "[preset=chinese][red]蜘蛛") then
                         for i = 1, 8 do
                             if (i <= #DATA.player.items) then
                                 boxtexts.inventory[i]:SetText(
@@ -993,7 +1101,7 @@ function SCENE.update(dt)
         if (boxcolumn == 2) then
             typer = boxtexts.box[boxrow]
             if (spidertime == 1) then
-                local tx, ty = TPos(240, 0)
+                local tx, ty = TPos(280, 0)
                 tween.CreateTween(
                     function (value)
                         typer.x = value
@@ -1009,7 +1117,7 @@ function SCENE.update(dt)
                     "Back", "InOut", typer.y, ty, 150
                 )
             elseif (spidertime == 240) then
-                local tx, ty = TPos(50, 0)
+                local tx, ty = TPos(90, 0)
                 tween.CreateTween(
                     function (value)
                         typer.x = value
@@ -1018,13 +1126,9 @@ function SCENE.update(dt)
                 )
             elseif (spidertime == 320) then
                 boxtexts.inventory[#DATA.player.items]:SetText(
-                    "[preset=chinese][offsetX=20][red]蜘蛛"
+                    "[preset=chinese][red]蜘蛛"
                 )
-                local bx, by = TPos(350, 80 + 35 * (boxrow - 1))
-                boxtexts.box[boxrow].x = bx
-                boxtexts.box[boxrow].y = by
-                boxtexts.box[boxrow]:SetText("")
-                
+
                 for i = 1, 8 do
                     if (i <= #DATA.player.items) then
                         boxtexts.inventory[i]:SetText(
@@ -1033,7 +1137,7 @@ function SCENE.update(dt)
                     else
                         boxtexts.inventory[i]:SetText("")
                     end
-                    local x, y = TPos(50, 80 + 35 * (i - 1))
+                    local x, y = TPos(90, 80 + 35 * (i - 1))
                     boxtexts.inventory[i].x = x
                     boxtexts.inventory[i].y = y
                 end
@@ -1046,7 +1150,7 @@ function SCENE.update(dt)
                     else
                         boxtexts.box[i]:SetText("")
                     end
-                    local x, y = TPos(350, 80 + 35 * (i - 1))
+                    local x, y = TPos(390, 80 + 35 * (i - 1))
                     boxtexts.box[i].x = x
                     boxtexts.box[i].y = y
                 end
@@ -1058,7 +1162,7 @@ function SCENE.update(dt)
         else
             typer = boxtexts.inventory[boxrow]
             if (spidertime == 1) then
-                local tx, ty = TPos(240, 0)
+                local tx, ty = TPos(280, 0)
                 tween.CreateTween(
                     function (value)
                         typer.x = value
@@ -1074,7 +1178,7 @@ function SCENE.update(dt)
                     "Back", "InOut", typer.y, ty, 150
                 )
             elseif (spidertime == 240) then
-                local tx, ty = TPos(350, 0)
+                local tx, ty = TPos(390, 0)
                 tween.CreateTween(
                     function (value)
                         typer.x = value
@@ -1083,12 +1187,9 @@ function SCENE.update(dt)
                 )
             elseif (spidertime == 320) then
                 boxtexts.box[#CHESTS.chest1]:SetText(
-                    "[preset=chinese][offsetX=20][red]蜘蛛"
+                    "[preset=chinese][red]蜘蛛"
                 )
-                local bx, by = TPos(350, 80 + 35 * (boxrow - 1))
-                boxtexts.inventory[boxrow].x = bx
-                boxtexts.inventory[boxrow].y = by
-                
+
                 for i = 1, 8 do
                     if (i <= #DATA.player.items) then
                         boxtexts.inventory[i]:SetText(
@@ -1097,7 +1198,7 @@ function SCENE.update(dt)
                     else
                         boxtexts.inventory[i]:SetText("")
                     end
-                    local x, y = TPos(50, 80 + 35 * (i - 1))
+                    local x, y = TPos(90, 80 + 35 * (i - 1))
                     boxtexts.inventory[i].x = x
                     boxtexts.inventory[i].y = y
                 end
@@ -1110,7 +1211,7 @@ function SCENE.update(dt)
                     else
                         boxtexts.box[i]:SetText("")
                     end
-                    local x, y = TPos(350, 80 + 35 * (i - 1))
+                    local x, y = TPos(390, 80 + 35 * (i - 1))
                     boxtexts.box[i].x = x
                     boxtexts.box[i].y = y
                 end
@@ -1206,7 +1307,7 @@ function SCENE.update(dt)
                             else
                                 boxtexts.inventory[i]:SetText("")
                             end
-                            local x, y = TPos(50, 80 + 35 * (i - 1))
+                            local x, y = TPos(90, 80 + 35 * (i - 1))
                             boxtexts.inventory[i].x = x
                             boxtexts.inventory[i].y = y
                         end
@@ -1219,7 +1320,7 @@ function SCENE.update(dt)
                             else
                                 boxtexts.box[i]:SetText("")
                             end
-                            local x, y = TPos(350, 80 + 35 * (i - 1))
+                            local x, y = TPos(390, 80 + 35 * (i - 1))
                             boxtexts.box[i].x = x
                             boxtexts.box[i].y = y
                         end
@@ -1241,16 +1342,15 @@ function SCENE.update(dt)
                 if (TYPERHEART.alpha ~= 0) then
                     audio.PlaySound("snd_save.wav")
                     TYPERHEART.alpha = 0
-                    local tm = global:GetSaveVariable("Overworld")
                     local minutes = math.floor(DATA.time / 60)
                     local seconds = math.floor(DATA.time % 60)
-                    saveb.info:SetText(string.format(tm.player.name .. "    LV " .. tm.player.lv .. "    %02d:%02d", minutes, seconds))
+                    saveb.info:SetText(string.format(DATA.player.name .. "    LV " .. DATA.player.lv .. "    %02d:%02d", minutes, seconds))
                     saveb.info.color = {1, 1, 0}
                     saveb.info:Reparse()
                     local id = finalInteractions.currentId
                     for _, save in ipairs(objects.saves) do
                         if (save.id == id) then
-                            DATA.room = save.room
+                            DATA.room_name = save.room
                             DATA.position = save.position
                             saveb.room:SetText("[preset=chinese][offsetX=20]" .. save.room)
                         end
@@ -1287,8 +1387,6 @@ function SCENE.update(dt)
             end
         end
     end
-
-    stat:Update(dt)
 end
 
 function SCENE.draw()
@@ -1296,7 +1394,7 @@ function SCENE.draw()
     love.graphics.push()
         map.instance:draw(map.x, map.y, SCALE_FACTOR * scale, SCALE_FACTOR * scale)
     love.graphics.pop()
-    
+
     -- Debug drawing
     if DEBUG_MODE then
         for _, body in pairs(world:getBodies()) do
@@ -1305,21 +1403,23 @@ function SCENE.draw()
             end
         end
     end
-    
+
     love.graphics.setColor(1, 1, 1)
 end
 
 function SCENE.clear()
     -- Clean up resources
+    package.loaded["Scripts.Libraries.Overworld.Stat"] = nil
+    package.loaded["Scripts.Libraries.Overworld.EncounterStep"] = nil
     for _, body in ipairs(world:getBodies()) do
         body:destroy()
     end
-    
+
     -- 2. 释放地图资源
     if map then
         map = nil
     end
-    
+
     -- 3. 清除玩家物理体
     if char_coll and char_coll.body then
         char_coll.body:destroy()

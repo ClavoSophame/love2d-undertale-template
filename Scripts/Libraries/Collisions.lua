@@ -138,7 +138,7 @@ function collisions.RectangleWithCircle(rectangle, circle)
     local function p2r(w, h, cos, sin, dx, dy)
         return math.abs(dx*cos + dy*sin)*2 <= w and math.abs(-dx*sin + dy*cos)*2 <= h
     end
-    
+
     local function solve(a,b, p,q)
         -- {x^2/a^2 + y^2/b^2 == 1} & {p*x + q*y == 0}
         if q == 0 then
@@ -150,11 +150,11 @@ function collisions.RectangleWithCircle(rectangle, circle)
             return x, -x*p/q
         end
     end
-    
+
     local function p2e(a, b, x, y)
         return (x*x)/(a*a) + (y*y)/(b*b) <= 1
     end
-    
+
     local function ellipseToRectangle(a, b, x, y, w, h, cos, sin)
         -- 中心在(0,0), 半长轴长为a, 半短轴长为b的椭圆
         -- 中心在(x,y), 宽为w, 高为h, 方向为(cos,sin)的矩形
@@ -203,7 +203,7 @@ function collisions.RectangleWithCircle(rectangle, circle)
         lg.ellipse("line", (-wx-hx)/2, (-wy-hy)/2, a, b)
         lg.ellipse("line", (wx-hx)/2, (wy-hy)/2, a, b)
         --]]
-    
+
         return p2r(w,h, cos,sin, x-x1,y-y1)
         or p2r(w,h, cos,sin, x-x2,y-y2)
         --or p2r(w,h, cos,sin, x-x3,y-y3)

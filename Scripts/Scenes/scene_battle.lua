@@ -10,10 +10,9 @@ battle.mainarena = arenas.Init()
 battle.mainarena.iscolliding = false
 battle.Player.sprite.color = {1, 0, 0}
 battle.wave = nil
-battle.nextwave = "wave_test2"
+battle.nextwave = "wave_test1"
 global:SetVariable("PlayerPosition", {0, 0})
 _CAMERA_:setPosition(0, 0)
-
 -- This is where the background UI is loaded.
 local encounterTyper = typers.CreateText(battle.EncounterText, {60, 270}, 13, {400, 150}, "none")
 local background = sprites.CreateSprite("px.png", -1000)
@@ -66,15 +65,31 @@ hp:MoveTo(hpname.x + 20, 411)
 hp.xpivot = 0
 hp:Scale(maths.Clamp(battle.Player.hp * 1.21, 20 * 1.21, 99 * 1.21), 20)
 hp.color = {1, 1, 0}
-local hp_text = typers.DrawText(battle.Player.hp .. " / " .. battle.Player.maxhp, {maxhp.x + maxhp.xscale + 15, 400}, 1)
+local hp_text = typers.DrawText(battle.Player.hp .. " / " .. battle.Player.maxhp, {maxhp.x + maxhp.xscale + 10, 400}, 1)
 hp_text.font = "Mars Needs Cunnilingus.ttf"
 hp_text.fontsize = 24
 hp_text:Reparse()
+local time_krs = {0, 0, 0}
+local bar_krs = {}
+local _kr_configuration = true
+local _kr_image = sprites.CreateSprite("UI/Battle Screen/spr_krmeter_0.png", 0)
+_kr_image.alpha = 0
+for i = 1, 1
+do
+    local bar_kr = sprites.CreateSprite("px.png", 1)
+    bar_kr.xscale = 0
+    bar_kr.yscale = 20
+    bar_kr.xpivot = 0
+    bar_kr.y = 411
+    if (i == 1) then bar_kr.color = {1, 0, 1} end
+    table.insert(bar_krs, bar_kr)
+end
 
 local uiTexts = {}
 local uiPoses = {}
 local uiElements = {}
 
+local time_kr = 0
 local fleeing = false
 local fleetime = 0
 local fleelegs
@@ -110,6 +125,23 @@ function uiElements.clear()
             table.remove(uiElements, i)
         end
     end
+    uiElements = {
+        clear = function ()
+            for i = #uiElements, 1, -1
+            do
+                if (uiElements[i].isactive) then
+                    uiElements[i]:Destroy()
+                    for k, v in pairs(layers.objects)
+                    do
+                        if (v == uiElements[i]) then
+                            table.remove(layers.objects, k)
+                        end
+                    end
+                    table.remove(uiElements, i)
+                end
+            end
+        end
+    }
 end
 function uiPoses.clear()
     for i = #uiPoses, 1, -1
@@ -136,7 +168,7 @@ end
 local nextwaves = {"wave_test1", "wave_test2", "wave_test3", "wave_test4"}
 local waveProgress = 1
 local function DefenseEnding()
-    print("defense ending")
+    print("defense ending", waveProgress)
     waveProgress = waveProgress + 1
     if (waveProgress > #nextwaves) then waveProgress = 1 end
     battle.nextwave = nextwaves[waveProgress]
@@ -146,6 +178,7 @@ local state_checker = battle.STATE
 local function EnteringState(newstate, oldstate)
     if (newstate == "ACTIONSELECT") then
         battle.mainarena:Resize(565, 130)
+        battle.mainarena:MoveTo(320, 320)
         battle.mainarena:RotateTo(0)
         battle.mainarena.iscolliding = false
         if (not oldstate == "DEFENDING") then
@@ -177,36 +210,26 @@ local function BattleDialogue(texts, targetState)
     typers.CreateText(tab, {60, 270}, 12, {0, 0}, "manual")
 end
 
--- This function is called when the player interacts with an enemy.
+-- This function is called when the battle.Player interacts with an enemy.
 local function HandleActions(enemy_name, action)
-    if (enemy_name == "Poseur") then
-        if (action == "Check") then
-            BattleDialogue({
-                "* Poseur - 1 ATK 99 DEF[wait:30]\n* The default enemy.", 
-                "[colorHEX:9900ff]* Carrying warm memories..."
-            })
-        elseif (action == "Appreciate") then
-            BattleDialogue({
-                "* You posed with Poseur.\n[colorHEX:00ffff]* Time seems to have frozen in\n  this moment...", 
-                "* Enjoy the time!"
-            })
+    if (enemy_name == battle.Enemies[1].name) then
+        local enemy = battle.Enemies[1]
+        if (action == enemy.actions[1]) then
+            BattleDialogue(localize.Act11)
+        elseif (action == enemy.actions[2]) then
+            BattleDialogue(localize.Act12)
         end
-    elseif (enemy_name == "[preset=chinese]敌人名称") then
-        if (action == "Check") then
-            BattleDialogue({
-                "* Posette - 1 ATK -1 DEF[wait:30]\n* Poseur's friend.",
-                "[colorHEX:9900ff]* Carrying warm memories too..."
-            })
-        elseif (action == "Appreciate") then
-            BattleDialogue({
-                "* You posed with Posette.\n[colorHEX:00ffff]* Time seems to have frozen in\n  this moment...",
-                "[colorHEX:11ff11]* Enjoy the time!!!"
-            })
+    elseif (enemy_name == battle.Enemies[2].name) then
+        local enemy = battle.Enemies[2]
+        if (action == enemy.actions[1]) then
+            BattleDialogue(localize.Act21)
+        elseif (action == enemy.actions[2]) then
+            BattleDialogue(localize.Act22)
         end
     end
 end
 
--- This function is called when the player interacts with an item.
+-- This function is called when the battle.Player interacts with an item.
 local function HandleItems(itemID)
     local inventory = battle.Inventory
     local randomText = {
@@ -218,6 +241,14 @@ local function HandleItems(itemID)
         "* An unforgettable item!",
     }
 
+    -- So if you wanna do your items with different language, check this out.
+    --[[
+        if (itemID == localize.Items[1]) then
+            -- BattleDialogue(Your localized text for the item)
+            BattleDialogue(localize.BLABLABLABLA1)
+        end
+    ]]
+
     -- Check if the item is consumed.
     BattleDialogue({
         "* You found an item...[wait:30]\n  [colorRGB:255, 255, 0]" .. itemID .. "!",
@@ -225,17 +256,18 @@ local function HandleItems(itemID)
     })
 end
 
--- What happens when the player selects the spare button.
+-- What happens when the battle.Player selects the spare button.
 local function HandleSpare()
-    battle.STATE = "DEFENDING"
+    battle.STATE = "ACTIONSELECT"
 end
 
--- What happens when the player selects the flee button.
+-- What happens when the battle.Player selects the flee button.
 local function HandleFlee()
     love.audio.stop()
     fleeing = true
     fleetime = 0
     fleelegs = sprites.CreateSprite("UI/Battle Screen/SOUL/spr_heartgtfo_0.png", 14.99)
+    fleelegs.color = battle.Player.sprite.color
     fleelegs:MoveTo(battle.Player.sprite.x, battle.Player.sprite.y + 12)
     fleelegs:SetAnimation({
         "UI/Battle Screen/SOUL/spr_heartgtfo_1.png",
@@ -244,7 +276,7 @@ local function HandleFlee()
     battle.Player.sprite.y = battle.Player.sprite.y - 8
     battle.Player.sprite.velocity.x = -1
     BattleDialogue({
-        "* You fled from the battle.\n* You feel refreshed.",
+        localize.FleeTexts[1],
         "[noskip][function:ChangeScene|scene_end][next]"
     })
     audio.PlaySound("snd_flee.wav", 1, false)
@@ -254,18 +286,31 @@ function ChangeScene(scene)
     scenes.switchTo(scene)
 end
 
--- This function is called when the player interacts with a bullet.
+local function AddKR(kramount)
+    if (not _kr_configuration) then return end
+    if (battle.Player.hp > 1) then
+        battle.Player.kr = battle.Player.kr + kramount
+        battle.Player.hp = battle.Player.hp - kramount
+    else
+        battle.Player.kr = math.max(0, battle.Player.kr - kramount)
+    end
+end
+
+-- This function is called when the battle.Player interacts with a bullet.
 local function OnHit(Bullet)
     local mode = Bullet['HurtMode']
     if (mode == "normal" or type(mode) == "nil") then
-        battle.Player.Hurt(1, 120, true)
+        battle.Player.Hurt(1, 0, true)
+        AddKR(1)
     elseif (mode == "cyan" or mode == "blue") then
-        if (battle.Player.isMoving) then
+        if (keyboard.GetState("arrows") > 0) then
             battle.Player.Hurt(1, 0, true)
+            AddKR(1)
         end
     elseif (mode == "orange") then
-        if (not battle.Player.isMoving) then
+        if (keyboard.GetState("arrows") <= 0) then
             battle.Player.Hurt(1, 0, true)
+            AddKR(1)
         end
     elseif (mode == "green") then
         battle.Player.Heal(1)
@@ -323,8 +368,61 @@ function SCENE.update(dt)
             if (hp_text) then
                 maxhp.xscale = maths.Clamp(battle.Player.maxhp * 1.21, 20 * 1.21, 99 * 1.21)
                 hp.xscale = (Player.hp / Player.maxhp) * maxhp.xscale
-                hp_text:SetText(battle.Player.hp .. " / " .. battle.Player.maxhp)
-                hp_text.x = math.max(maxhp.x + maxhp.xscale + 15, maxhp.x + hp.xscale + 15)
+
+                if (battle.Player.kr + battle.Player.hp > battle.Player.maxhp) then
+                    battle.Player.kr = battle.Player.maxhp - battle.Player.hp
+                end
+
+                hp_text:SetText(battle.Player.hp + battle.Player.kr .. " / " .. battle.Player.maxhp)
+                hp_text.x = math.max(maxhp.x + maxhp.xscale + 10, maxhp.x + hp.xscale + 10)
+
+                if (_kr_configuration) then
+                    _kr_image.alpha = 1
+                    _kr_image:MoveTo(maxhp.x + math.max(hp.xscale, maxhp.xscale) + 22, 411)
+                    hp_text.x = maxhp.x + math.max(hp.xscale, maxhp.xscale) + 50
+
+                    for i = 1, 1
+                    do
+                        local bkrb = bar_krs[i]
+                        if (bkrb.isactive) then
+                            bkrb.xscale = battle.Player.kr * 1.21
+                            bkrb.x = hp.x + hp.xscale
+                        end
+                    end
+                else
+                    hp_text.x = maxhp.x + math.max(hp.xscale, maxhp.xscale) + 10
+                end
+
+                battle.Player.kr = math.min(battle.Player.kr, battle.Player.maxhp - 1)
+                if (battle.Player.kr > 0) then
+                    hp_text.color = {1, 0, 1}
+                    hp_text:Reparse()
+                    if (battle.Player.hp <= 0) then
+                        battle.Player.hp = 1
+                    end
+                    time_kr = time_kr + 1
+                    if (battle.Player.kr > 20) then
+                        if (time_kr >= 15) then
+                            battle.Player.kr = math.max(math.floor(battle.Player.kr - 1), 0)
+                            time_kr = 0
+                        end
+                    elseif (battle.Player.kr > 10) then
+                        if (time_kr >= 30) then
+                            battle.Player.kr = math.max(math.floor(battle.Player.kr - 1), 0)
+                            time_kr = 0
+                        end
+                    elseif (battle.Player.kr > 0) then
+                        if (time_kr >= 40) then
+                            battle.Player.kr = math.max(math.floor(battle.Player.kr - 1), 0)
+                            time_kr = 0
+                        end
+                    else
+                        battle.Player.kr = 0
+                    end
+                else
+                    battle.Player.kr = 0
+                    hp_text.color = {1, 1, 1}
+                end
             end
             for i = 1, #UI.Buttons
             do
@@ -376,7 +474,7 @@ function SCENE.update(dt)
                         hpt:Reparse()
 
                         local w, h = hpt:GetLettersSize()
-                        hpt.x = hpt.x - w / 2
+                        hpt.x = hpt.x - w / 2 + 3
                         bcg = sprites.CreateSprite("px.png", hpt.layer - 0.00001)
                         bcg:Scale(w + 3, h + 2)
                         bcg.color = {0, 0, 0}
@@ -394,7 +492,7 @@ function SCENE.update(dt)
                         hpt:Reparse()
 
                         local w, h = hpt:GetLettersSize()
-                        hpt.x = hpt.x - w / 2
+                        hpt.x = hpt.x - w / 2 + 3
                         bcg = sprites.CreateSprite("px.png", hpt.layer - 0.00001)
                         bcg:Scale(w + 3, h + 2)
                         bcg.color = {0, 0, 0}
@@ -449,10 +547,9 @@ function SCENE.update(dt)
                 if (attacktime == 140) then
                     if (#enemies > 0) then
                         battle.STATE = "DEFENDING"
+                        uiElements[2].alpha = 0
                         uiTexts.clear()
-                        uiElements.clear()
                         attacking = false
-                        attacktime = 0
                     else
                         love.audio.stop()
                         audio.ClearAll()
@@ -463,6 +560,20 @@ function SCENE.update(dt)
                             "* You WON![wait:10]\n* You earned " .. battle.Exp .. " XP and " .. battle.Gold .. " GOLD.", 
                             "[function:ChangeScene|scene_end]"
                         })
+                    end
+                end
+            else
+                if (battle.STATE == "DEFENDING") then
+                    if (uiElements[1]) then
+                        if (uiElements[1].alpha > 0) then
+                            uiElements[1].alpha = uiElements[1].alpha - 0.07
+                            uiElements[1].xscale = uiElements[1].xscale - 0.04
+                            uiElements[1].rotation = battle.mainarena.rotation
+                        else
+                            attacking = false
+                            attacktime = 0
+                            uiElements.clear()
+                        end
                     end
                 end
             end
@@ -497,7 +608,7 @@ function SCENE.update(dt)
                     battle.STATE = "ATTACKING"
                     audio.PlaySound("snd_menu_1.wav")
                     Player.sprite:MoveTo(9999, 9999)
-                    local target = sprites.CreateSprite("UI/Battle Screen/spr_target_0.png", 15)
+                    local target = sprites.CreateSprite("UI/Battle Screen/spr_target_0.png", 12)
                     target.y = 320
                     table.insert(uiElements, target)
                     local bar = sprites.CreateSprite("UI/Battle Screen/Player Attack/spr_targetchoice_0.png", 16)
@@ -556,43 +667,6 @@ function SCENE.update(dt)
                     uiElements.clear()
                     audio.PlaySound("snd_menu_1.wav")
                     Player.sprite:MoveTo(9999, 9999)
-                elseif (battle.STATE == "MERCYMENU") then
-                    if (inSelect == 1) then
-                        for k, v in pairs(enemies)
-                        do
-                            if (v.canspare) then
-                                v.dead = true
-                                battle.Gold = battle.Gold + v.gold
-                                table.remove(enemies, k)
-                            end
-                        end
-                        if (#enemies == 0) then
-                            Player.sprite:MoveTo(9999, 9999)
-                            uiElements.clear()
-                            uiTexts.clear()
-                            battle.STATE = "NONE"
-                            battle.WIN = true
-                            BattleDialogue({
-                                "* You WON![wait:10]\n* You earned " .. battle.Exp .. " XP and " .. battle.Gold .. " GOLD.", 
-                                "[function:ChangeScene|scene_end]"
-                            })
-                        else
-                            HandleSpare()
-                        end
-                        uiElements.clear()
-                        uiTexts.clear()
-                    else
-                        if (math.random() <= 0.6) then
-                            battle.STATE = "FLEEING"
-                            HandleFlee()
-                            uiElements.clear()
-                            uiTexts.clear()
-                        else
-                            uiElements.clear()
-                            uiTexts.clear()
-                            battle.STATE = "DEFENDING"
-                        end
-                    end
                 end
                 if (battle.STATE == "ACTIONSELECT") then
                     audio.PlaySound("snd_menu_1.wav")
@@ -659,7 +733,7 @@ function SCENE.update(dt)
                                     table.insert(uiTexts, text)
                                 end
                             end
-                            local page = typers.DrawText("PAGE 1", {400, 340}, 14)
+                            local page = typers.DrawText(localize.ItemsPage .. " [font=determination_mono.ttf][scale=1][offsetY=1]1", {400, 340}, 14)
                             table.insert(uiTexts, page)
                         elseif (inventory.Pattern == 2) then
                             if (#inventory.Items > 3) then
@@ -681,14 +755,51 @@ function SCENE.update(dt)
                     elseif (inButton == 4) then
                         battle.STATE = "MERCYMENU"
 
-                        local text = typers.DrawText("* Spare", {80, 270}, 14)
-                        local text1 = typers.DrawText("* Flee", {80, 305}, 14)
+                        local text = typers.DrawText("* " .. localize.Spare, {80, 270}, 14)
+                        local text1 = typers.DrawText("* " .. localize.Flee, {80, 305}, 14)
                         table.insert(uiTexts, text)
                         table.insert(uiTexts, text1)
 
                         for _, v in pairs(enemies)
                         do
                             if (v.canspare) then text.color = {1, 1, 0} text:Reparse() end
+                        end
+                    end
+                elseif (battle.STATE == "MERCYMENU") then
+                    if (inSelect == 1) then
+                        for k, v in pairs(enemies)
+                        do
+                            if (v.canspare) then
+                                v.dead = true
+                                battle.Gold = battle.Gold + v.gold
+                                table.remove(enemies, k)
+                            end
+                        end
+                        if (#enemies == 0) then
+                            Player.sprite:MoveTo(9999, 9999)
+                            uiElements.clear()
+                            uiTexts.clear()
+                            battle.STATE = "NONE"
+                            battle.WIN = true
+                            BattleDialogue({
+                                "* You WON![wait:10]\n* You earned " .. battle.Exp .. " XP and " .. battle.Gold .. " GOLD.", 
+                                "[function:ChangeScene|scene_end]"
+                            })
+                        else
+                            HandleSpare()
+                        end
+                        uiElements.clear()
+                        uiTexts.clear()
+                    else
+                        if (math.random() <= 0.6) then
+                            battle.STATE = "FLEEING"
+                            HandleFlee()
+                            uiElements.clear()
+                            uiTexts.clear()
+                        else
+                            uiElements.clear()
+                            uiTexts.clear()
+                            battle.STATE = "DEFENDING"
                         end
                     end
                 end
@@ -738,6 +849,7 @@ function SCENE.update(dt)
                 end
             end
             arenas.Update()
+
             if (battle.STATE == "FIGHTMENU") then
                 if (battle.Player.sprite.isactive) then
                     if (keyboard.GetState("up") == 1) then
@@ -827,7 +939,7 @@ function SCENE.update(dt)
                                     end
                                 end
                             end
-                            uiTexts[5]:SetText("PAGE " .. currentPage)
+                            uiTexts[5]:SetText(localize.ItemsPage .. " [font=determination_mono.ttf][scale=1][offsetY=1]" .. currentPage)
                             inSelect = math.min(#inventory.Items, inSelect + 3)
                         end
                     end
@@ -850,7 +962,7 @@ function SCENE.update(dt)
                                     end
                                 end
                             end
-                            uiTexts[5]:SetText("PAGE " .. currentPage)
+                            uiTexts[5]:SetText(localize.ItemsPage .. " [font=determination_mono.ttf][scale=1][offsetY=1]" .. currentPage)
                             inSelect = math.max(1, inSelect - 3)
                         end
                     end
@@ -956,6 +1068,8 @@ function SCENE.update(dt)
             if (battle.Player.hp <= 0) then
                 package.loaded["Scripts.Waves." .. battle.nextwave] = nil
                 scenes.switchTo("scene_gameover")
+                _CAMERA_:setAngle(0)
+                _CAMERA_:setPosition(0, 0)
             end
         end
     end
@@ -969,14 +1083,14 @@ function SCENE.draw()
             end
         end
     end
-
-    love.graphics.rectangle("fill", 0, 0, 320, 240)
 end
 
 function SCENE.clear()
+    package.loaded["Scripts.Libraries.Attacks.PlayerLib"] = nil
     package.loaded["Scripts.Libraries.Game.Encounter"] = nil
     package.loaded["Scripts.Libraries.Attacks.Arenas"] = nil
     package.loaded["Scripts.Waves." .. battle.nextwave] = nil
+    package.loaded["Scripts.Libraries.Attacks.Bones"] = nil
 
     tween.clear()
     blasters:clear()

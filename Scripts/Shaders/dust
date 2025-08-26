@@ -2,6 +2,7 @@
 uniform number dt;
 uniform number scan_y;
 uniform vec2 screen_size_inv;
+extern vec4 sColor;
 
 number noise(vec2 p, number s) {
     return fract(sin(s * dot(p, vec2(12.9898, 78.233))) * 43758.5453);
@@ -14,13 +15,13 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
         // n~U(-1,1), p(n)=0.5 when -1<=n<=1
         // p(asin(n)) = cos(n)/2, tend to gather at 0
         //#define asin (1.57)* // 取消注释对比cos分布与均匀分布
-        vec4 texcolor = Texel(texture, texture_coords + vec2(asin(n)*10.0, 120.0*dt) * screen_size_inv);
+        vec4 texcolor = Texel(texture, texture_coords + vec2(asin(n)*10.0, 60.0*dt) * screen_size_inv);
         texcolor.a -= 0.125 * dt;
-        if (texture_coords.y < scan_y - 0.02) {
+        if (texture_coords.y < scan_y - 20.0 * screen_size_inv.y) {
             texcolor.a = 0;
         }
         return texcolor;
     }
     vec4 texcolor = Texel(texture, texture_coords);
-    return texcolor;
+    return texcolor * sColor;
 }

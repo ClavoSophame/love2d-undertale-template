@@ -1,14 +1,15 @@
 local Bones = {
     _2D = {}, 
-    _3D = {}
+    _3D = {},
+    _WALL = {}
 }
 
 local functions = {
     _2D = {
-        SetStencil = function(bone, masks, mode, value)
-            bone.body:SetStencil(masks, mode, value)
-            bone.head:SetStencil(masks, mode, value)
-            bone.tail:SetStencil(masks, mode, value)
+        SetStencils = function(bone, masks)
+            bone.body:SetStencils(masks)
+            bone.head:SetStencils(masks)
+            bone.tail:SetStencils(masks)
         end, 
         Length = function(bone, length)
             if (length > 0) then
@@ -26,29 +27,29 @@ local functions = {
             bone.tail.color = color
         end, 
         SetMode = function(bone, mode)
-            bone.body.mode = mode
-            bone.head.mode = mode
-            bone.tail.mode = mode
+            bone.body.HurtMode = mode
+            bone.head.HurtMode = mode
+            bone.tail.HurtMode = mode
         end,
         ToUp = function(bone, arena)
             local len = bone.length + 6
             local cos, sin = math.cos(math.rad(bone.rotation)), math.sin(math.rad(bone.rotation))
-            bone.body.y = arena.y - arena.height + len / 2
+            bone.position.y = arena.y - arena.height / 2 + (len / 2 + 3)
         end,
         ToDown = function(bone, arena)
             local len = bone.length + 6
             local cos, sin = math.cos(math.rad(bone.rotation)), math.sin(math.rad(bone.rotation))
-            bone.body.y = arena.y + arena.height - len / 2
+            bone.position.y = arena.y + arena.height / 2 - (len / 2 + 3)
         end,
         ToLeft = function(bone, arena)
             local len = bone.length + 6
             local cos, sin = math.cos(math.rad(bone.rotation)), math.sin(math.rad(bone.rotation))
-            bone.body.x = arena.x - arena.width + len / 2
+            bone.position.x = arena.x - arena.width / 2 + (len / 2 + 3)
         end,
         ToRight = function(bone, arena)
             local len = bone.length + 6
             local cos, sin = math.cos(math.rad(bone.rotation)), math.sin(math.rad(bone.rotation))
-            bone.body.x = arena.x + arena.width - len / 2
+            bone.position.x = arena.x + arena.width / 2 - (len / 2 + 3)
         end,
     }, 
     _3D = {
@@ -109,11 +110,11 @@ local functions = {
                 y - bone.position[2]
             }
         end, 
-        SetStencil = function(bone, masks, mode, value)
+        SetStencils = function(bone, masks)
             for i = #bone.bones, 1, -1
             do
                 local b = bone.bones[i]
-                b:SetStencil(masks, mode, value)
+                b:SetStencils(masks)
             end
         end,
         Destroy = function(bone)
@@ -129,10 +130,39 @@ local functions = {
                 p:Destroy()
             end
         end
+    },
+    _WALL = {
+        SetStencils = function(wall, masks)
+            if (wall.warning) then
+                wall.warning:SetStencils(masks)
+            end
+            for i = #wall.bones, 1, -1
+            do
+                local b = wall.bones[i]
+                b:SetStencils(masks)
+            end
+        end,
+        Destroy = function (wall)
+            for i = #Bones._WALL, 1, -1
+            do
+                local w = Bones._WALL[i]
+                if (w == wall) then
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        bone:Destroy()
+                        table.remove(wall.bones, j)
+                    end
+                    wall = {}
+                    table.remove(Bones._WALL, i)
+                end
+            end
+        end
     }
 }
 functions._2D.__index = functions._2D
 functions._3D.__index = functions._3D
+functions._WALL.__index = functions._WALL
 
 function Bones:New2D(whose, length)
     local bone = {}
@@ -145,6 +175,11 @@ function Bones:New2D(whose, length)
     bone.head.rotation = 180
     bone.body = sprites.CreateSprite("px.png", global:GetVariable("LAYER"))
     bone.tail = sprites.CreateSprite("Attacks/" .. (bone.path or "Sans") .. "/spr_s_bonebul_bottom_0.png", global:GetVariable("LAYER"))
+
+    bone.head:MoveTo(99999, 99999)
+    bone.tail:MoveTo(99999, 99999)
+    bone.body:MoveTo(99999, 99999)
+
     bone.body.isBullet = true
     bone.body.collisions = {harms = {{"self"}}}
     bone.tail.isBullet = true
@@ -199,6 +234,360 @@ function Bones:New3D(points)
 
     table.insert(Bones._3D, bone)
     return bone
+end
+
+function Bones:Wall(arena, whose, warntime, staytime, length, direction, rotation, interval, animation)
+    local X, Y = arena.black:GetPosition()
+    local W, H = arena.width, arena.height
+    local cos, sin = math.cos(math.rad(rotation)), math.sin(math.rad(rotation))
+    local wall = {
+        time = 0,
+        bones = {},
+        stencils = {},
+        interval = (interval or 12),
+        rotation = (rotation or 0),
+        warntime = warntime,
+        warning = sprites.CreateSprite("px.png", global:GetVariable("LAYER"))
+    }
+
+    local i = 1
+    wall.warning:Scale(999, length * 2 + 12)
+    wall.warning.alpha = 0.5
+    wall.warning.rotation = wall.rotation
+
+    if (direction == "down") then
+        -- h = sqrt(pow(w / 2 * cos, 2) - pow(w / 2, 2))
+        -- h += w/2 * tan R
+        wall.warning:MoveTo(
+            X + wall.interval * (i - 1) * cos - (H / 2 + 10) * sin,
+            Y + (H / 2 + 10) * cos + (wall.interval * (i - 1)) * sin + W / 2 * math.tan(math.rad(rotation)) + 6
+        )
+        for i = 1, 20 do
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation
+            bone.position = {
+                x = X + wall.interval * (i - 1) * cos - (H / 2 + 10) * sin,
+                y = Y + (H / 2 + 10) * cos + (wall.interval * (i - 1)) * sin
+            }
+            bone.position.y = bone.position.y + W / 2 * math.tan(math.rad(rotation)) + 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation
+            bone.position = {
+                x = X - wall.interval * i * cos - (H / 2 + 10) * sin,
+                y = Y + (H / 2 + 10) * cos - (wall.interval * i) * sin
+            }
+            bone.position.y = bone.position.y + W / 2 * math.tan(math.rad(rotation)) + 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+        end
+    elseif (direction == "up") then
+        wall.warning:MoveTo(
+            X + wall.interval * (i - 1) * cos - (H / 2 + 10) * sin,
+            Y - (H / 2 + 10) * cos + (wall.interval * (i - 1)) * sin - W / 2 * math.tan(math.rad(rotation)) - 6
+        )
+        for i = 1, 20 do
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation
+            bone.position = {
+                x = X + wall.interval * (i - 1) * cos - (H / 2 + 10) * sin,
+                y = Y - (H / 2 + 10) * cos + (wall.interval * (i - 1)) * sin
+            }
+            bone.position.y = bone.position.y - W / 2 * math.tan(math.rad(rotation)) - 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation
+            bone.position = {
+                x = X - wall.interval * i * cos - (H / 2 + 10) * sin,
+                y = Y - (H / 2 + 10) * cos - (wall.interval * i) * sin
+            }
+            bone.position.y = bone.position.y - W / 2 * math.tan(math.rad(rotation)) - 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+        end
+    elseif (direction == "left") then
+        wall.warning.rotation = wall.warning.rotation + 90
+        wall.warning:MoveTo(
+            X - (W / 2 + 10) * cos - (wall.interval * (i - 1)) * sin - H / 2 * math.tan(math.rad(rotation)) - 6,
+            Y + wall.interval * (i - 1) * cos - (W / 2 + 10) * sin
+        )
+        for i = 1, 20 do
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation + 90
+            bone.position = {
+                x = X - (W / 2 + 10) * cos - (wall.interval * (i - 1)) * sin,
+                y = Y + wall.interval * (i - 1) * cos - (W / 2 + 10) * sin
+            }
+            bone.position.x = bone.position.x - H / 2 * math.tan(math.rad(rotation)) - 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation + 90
+            bone.position = {
+                x = X - (W / 2 + 10) * cos + (wall.interval * i) * sin,
+                y = Y - wall.interval * i * cos - (W / 2 + 10) * sin
+            }
+            bone.position.x = bone.position.x - H / 2 * math.tan(math.rad(rotation)) - 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+        end
+    elseif (direction == "right") then
+        wall.warning.rotation = wall.warning.rotation + 90
+        wall.warning:MoveTo(
+            X + (W / 2 + 10) * cos + (wall.interval * (i - 1)) * sin + H / 2 * math.tan(math.rad(rotation)) + 6,
+            Y + wall.interval * (i - 1) * cos + (W / 2 + 10) * sin
+        )
+        for i = 1, 20 do
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation + 90
+            bone.position = {
+                x = X + (W / 2 + 10) * cos - (wall.interval * (i - 1)) * sin,
+                y = Y + wall.interval * (i - 1) * cos + (W / 2 + 10) * sin
+            }
+            bone.position.x = bone.position.x + H / 2 * math.tan(math.rad(rotation)) + 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+
+            local bone = Bones:New2D(whose, 0)
+            bone.rotation = wall.rotation + 90
+            bone.position = {
+                x = X + (W / 2 + 10) * cos + (wall.interval * i) * sin,
+                y = Y - wall.interval * i * cos + (W / 2 + 10) * sin
+            }
+            bone.position.x = bone.position.x + H / 2 * math.tan(math.rad(rotation)) + 6
+            bone.logic = function (self)
+                if (wall.time == warntime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.In, 0, length * 2, animation.It
+                    )
+                elseif (wall.time == warntime + animation.It + staytime) then
+                    tween.CreateTween(
+                        function (value)
+                            self.length = value
+                        end,
+                        "", animation.Out, self.length, 0, animation.Ot
+                    )
+                elseif (wall.time >= warntime + animation.It + staytime + animation.Ot) then
+                    self:Destroy()
+                    for j = #wall.bones, 1, -1
+                    do
+                        local bone = wall.bones[j]
+                        if (bone == self) then
+                            table.remove(wall.bones, j)
+                        end
+                    end
+                end
+            end
+            table.insert(wall.bones, bone)
+        end
+    end
+
+    wall.logic = function (self)
+        self.time = self.time + 1
+        if (self.time <= self.warntime) then
+            if (self.time % 6 == 0) then
+                self.warning.color = {1, 0, 0}
+            elseif (self.time % 6 == 3) then
+                self.warning.color = {1, 1, 0}
+            end
+        else
+            if (self.warning.isactive) then
+                self.warning:Destroy()
+            end
+        end
+        for i = #self.bones, 1, -1
+        do
+            local bone = self.bones[i]
+            bone:logic()
+        end
+    end
+
+    setmetatable(wall, functions._WALL)
+
+    return wall
 end
 
 function Bones:Update()

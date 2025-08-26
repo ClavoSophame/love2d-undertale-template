@@ -1,8 +1,11 @@
+_VERSION = "2.3.9-lazy"
+_RELEASED = false
+
 function love.conf(t)
     t.identity = nil                    -- 保存目录的名称（字符串）
     t.appendidentity = false            -- 在保存目录之前搜索源目录中的文件（布尔值）
-    t.version = "11.3"                  -- 此游戏制作的 LÖVE 版本（字符串）
-    t.console = true                   -- 附加控制台（布尔值，仅限 Windows）
+    t.version = "11.5"                  -- 此游戏制作的 LÖVE 版本（字符串）
+    t.console = not _RELEASED                   -- 附加控制台（布尔值，仅限 Windows）
     t.accelerometerjoystick = true      -- 将其展现为为 Joystick ，从而启用 iOS 和 Android 上的加速度计（布尔值）
     t.externalstorage = false           -- 在 Android 上将文件保存（并从保存目录读取）在外部存储中（布尔值）
     t.gammacorrect = false              -- 当系统支持时，对渲染启用伽马校正（布尔值）
@@ -49,4 +52,102 @@ function love.conf(t)
     t.modules.touch = true              -- 启用触摸模块（布尔值）
     t.modules.video = true              -- 启用视频模块（布尔值）
     t.modules.window = true             -- 启用窗口模块（布尔值）
+end
+
+function love.errhand(msg)
+    love.audio.stop()
+
+    screen_w, screen_h = love.graphics.getDimensions()
+    scale = math.min(screen_w / 640, screen_h / 480)
+    draw_x = math.floor((screen_w - 640 * scale) * 0.5 + 0.5)
+    draw_y = math.floor((screen_h - 480 * scale) * 0.5 + 0.5)
+
+    msg = tostring(msg)
+    local major, minor, revision = love.getVersion()
+    local version_num = major * 10000 + minor * 100 + revision
+
+    local dogangle = 0
+    local dogs = {
+        "spr_tinypombark_0", "spr_tinypomjump_0", "spr_tinypomsad_0", "spr_tinypomsadbark_0", "spr_tinypomwag_0",
+        "spr_tinypomwag_1", "spr_tinypomwalk_0", "spr_tinypomwalk_1"
+    }
+    local tdog = love.graphics.newImage("Resources/Sprites/Attacks/Dogs/" .. dogs[math.random(#dogs)] .. ".png")
+    tdog:setFilter("nearest", "nearest")
+
+    local debugInfo = {
+        LOVEversion = version_num,
+        system = love.system.getOS(),
+        time = os.date("%Y-%m-%d %H:%M:%S"),
+        version = "2.3.9 - 1.0.0",
+        memory = string.format("%.2f MB", collectgarbage("count") / 1024),
+        renderer = love.graphics.getRendererInfo()
+    }
+
+    local debugStr = "\n\n--- DEBUG INFORMATION ---\n"
+    for k, v in pairs(debugInfo) do
+        debugStr = debugStr .. string.format("%s: %s\n", k, tostring(v))
+    end
+
+    debugStr = debugStr .. "\n"
+    debugStr = debugStr .. "AUTHOR: [Clavo Sophame]\n"
+    debugStr = debugStr .. "CONTACT: [NaN]\n"
+    debugStr = debugStr .. "GAME WEBSITE: [NaN]"
+
+    local fullError = "Fatal Error\n\n" ..
+                      "Error:\n" .. msg ..
+                      debugStr
+
+    print(fullError)
+
+    return function()
+        local shouldExit = false
+
+        love.event.pump()
+        for e, a, b, c in (love.event.poll()) do
+            if (e == "quit") then
+                shouldExit = true
+            end
+        end
+
+        if love.keyboard.isDown("lctrl", "rctrl") and love.keyboard.isDown("c") then
+            love.system.setClipboardText(fullError)
+        end
+
+        if (love.graphics and love.graphics.isActive()) then
+            dogangle = dogangle + 0.1
+            love.graphics.reset()
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.clear(0.15, 0.1, 0.15)
+
+            local smallFont = love.graphics.newFont("Resources/Fonts/determination_mono.ttf", 16)
+            local mainFont = love.graphics.newFont("Resources/Fonts/determination_mono.ttf", 20)
+
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(tdog, 200, 40, math.rad(dogangle), 1, 1, 54 / 2, 38 / 2)
+
+            love.graphics.setFont(mainFont)
+            love.graphics.setColor(1, 0.3, 0.3)
+            love.graphics.print("Fatal Error", 30, 30)
+
+            love.graphics.setColor(0.8, 0.2, 0.2)
+            love.graphics.line(30, 70, love.graphics.getWidth() - 30, 70)
+
+            love.graphics.setColor(1, 0.6, 0.6)
+            love.graphics.setFont(smallFont)
+            love.graphics.printf("Error:\n"..msg, 30, 85, love.graphics.getWidth() - 60)
+
+            love.graphics.setColor(0.6, 0.8, 1)
+            love.graphics.printf(debugStr, 30, 160, love.graphics.getWidth() - 60)
+
+            love.graphics.setColor(0.5, 0.8, 0.5)
+            love.graphics.printf("Press ALT+F4 quit the game", 30, love.graphics.getHeight() - 60, love.graphics.getWidth() - 60, "right")
+
+            love.graphics.setColor(0.8, 0.8, 0.5)
+            love.graphics.printf("Press CTRL+C copy the message", 30, love.graphics.getHeight() - 30, love.graphics.getWidth() - 60, "right")
+
+            love.graphics.present()
+        end
+
+        return shouldExit
+    end
 end

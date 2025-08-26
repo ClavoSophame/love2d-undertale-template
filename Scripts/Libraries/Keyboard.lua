@@ -1,5 +1,5 @@
 local Keyboard = {
-    keys = {}, 
+    keys = {},
     binds = {},
     progresses = {},
     simulatedKeys = {},
@@ -48,17 +48,17 @@ table.insert(Keyboard.keys, {id = "end", state = 0, pressed = false, pressaux = 
 table.insert(Keyboard.keys, {id = "pageup", state = 0, pressed = false, pressaux = false})
 table.insert(Keyboard.keys, {id = "pagedown", state = 0, pressed = false, pressaux = false})
 
-table.insert(Keyboard.keys, {id = "[", state = 0, pressed = false, pressaux = false})  -- [
-table.insert(Keyboard.keys, {id = "]", state = 0, pressed = false, pressaux = false}) -- ]
-table.insert(Keyboard.keys, {id = "\\", state = 0, pressed = false, pressaux = false})    -- \
-table.insert(Keyboard.keys, {id = ";", state = 0, pressed = false, pressaux = false})   -- ;
-table.insert(Keyboard.keys, {id = "'", state = 0, pressed = false, pressaux = false})   -- '
-table.insert(Keyboard.keys, {id = ",", state = 0, pressed = false, pressaux = false})         -- ,
-table.insert(Keyboard.keys, {id = ".", state = 0, pressed = false, pressaux = false})       -- .
-table.insert(Keyboard.keys, {id = "/", state = 0, pressed = false, pressaux = false})        -- /
-table.insert(Keyboard.keys, {id = "`", state = 0, pressed = false, pressaux = false})        -- `
-table.insert(Keyboard.keys, {id = "-", state = 0, pressed = false, pressaux = false})       -- -
-table.insert(Keyboard.keys, {id = "=", state = 0, pressed = false, pressaux = false})       -- =
+table.insert(Keyboard.keys, {id = "[", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "]", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "\\", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = ";", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "'", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = ",", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = ".", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "/", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "`", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "-", state = 0, pressed = false, pressaux = false})
+table.insert(Keyboard.keys, {id = "=", state = 0, pressed = false, pressaux = false})
 
 table.insert(Keyboard.keys, {id = "up", state = 0, pressed = false, pressaux = false})
 table.insert(Keyboard.keys, {id = "down", state = 0, pressed = false, pressaux = false})
@@ -78,6 +78,10 @@ table.insert(Keyboard.keys, {id = "kp+", state = 0, pressed = false, pressaux = 
 table.insert(Keyboard.keys, {id = "kp.", state = 0, pressed = false, pressaux = false})
 table.insert(Keyboard.keys, {id = "kp=", state = 0, pressed = false, pressaux = false})
 
+---Use this function to bind a name to a set of keys.
+---This allows you to check the state of a set of keys with a single name.
+---@param name string
+---@param ... string
 function Keyboard.Bind(name, ...)
     local keys = {...}
     Keyboard.binds[name] = {}
@@ -123,6 +127,9 @@ function Keyboard.AllowPlayerInput(bool)
     Keyboard.allowInput = bool
 end
 
+---Use this function to get the state of a key, or a keys binding.
+---@param key string
+---@return integer
 function Keyboard.GetState(key)
     if (Keyboard.simulatedKeys[key]) then
         local simKey = Keyboard.simulatedKeys[key]
@@ -176,24 +183,32 @@ function Keyboard.GetState(key)
             end
         end
     end
-    
+
     return 0
 end
 
+---Use this function to get the mouse's position in the game world.
+---It doesn't matter if the game is scaled or not, it will always return the position in the game world.
+---@return number, number
 function Keyboard.GetMousePosition()
-    local scale = math.min(love.graphics.getWidth() / 640, love.graphics.getHeight() / 480)
+    local scale = scale
     local x, y = love.mouse.getPosition()
-    if (scale ~= 1) then
-        x = x - 240
-    end
-    return x / scale, y / scale
+    x = x - draw_x
+
+    -- Transform the position with CAMERA
+    x = x / scale + _CAMERA_.x
+    y = y / scale + _CAMERA_.y
+    return x, y
 end
 
+---This function returns any letter that is currently pressed.
+---If the functionKeys are pressed, it won't return any letter.
+---@return string
 function Keyboard.ReturnLetter()
     local letter = ""
     local functionKeys = {
-        "lshift", "rshift", "space", "lctrl", "rctrl", "lalt", "ralt", 
-        "tab", "capslock", "enter", "esc", "backspace", "delete", 
+        "lshift", "rshift", "space", "lctrl", "rctrl", "lalt", "ralt",
+        "tab", "capslock", "enter", "esc", "backspace", "delete",
         "insert", "home", "end", "pageup", "pagedown", "numlock",
         "scrolllock", "pause", "printscreen", "f1", "f2", "f3", "f4",
         "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12",
@@ -213,7 +228,7 @@ function Keyboard.ReturnLetter()
         [";"] = ":", ["'"] = "\"", [","] = "<", ["."] = ">", ["/"] = "?",
         ["`"] = "~"
     }
-    
+
     for _, v in pairs(Keyboard.keys) do
         if v.state == 1 and not isFunctionKey[v.id] then
             if string.match(v.id, "^[a-z]$") then
@@ -235,6 +250,12 @@ function Keyboard.ReturnLetter()
     return letter
 end
 
+---This function simulates a key press for a certain duration.
+---It will automatically release the key after the duration.
+---Returns a progress table that can be used to track the key press.
+---@param key string
+---@param duration number
+---@return table
 function Keyboard.AutoPress(key, duration)
     local progress = {}
     progress.duration = (duration or 1)

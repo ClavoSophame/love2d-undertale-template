@@ -6,19 +6,59 @@ local functions = {
     Resize = function(shell, width, height)
         local w = (width >= 16) and width or 16
         local h = (height >= 16) and height or 16
-        shell.width = w
-        shell.height = h
+        shell.target.width = w
+        shell.target.height = h
     end,
     MoveTo = function(shell, x, y)
         shell.x = x
         shell.y = y
+        shell.target.x = x
+        shell.target.y = y
     end,
     MoveToAndResize = function(shell, x, y, width, height)
         shell:MoveTo(x, y)
         shell:Resize(width, height)
     end,
+
+    UpSide = function(shell, value)
+        shell.target.height = shell.target.height + value
+        if (shell.target.height < 16) then
+            shell.target.height = 16
+        end
+        shell.target.y = shell.target.y - value / 2
+        shell.speed.height = 15 
+        shell.speed.y = 7.5
+    end,
+    DownSide = function(shell, value)
+        shell.target.height = shell.target.height + value
+        if (shell.target.height < 16) then
+            shell.target.height = 16
+        end
+        shell.target.y = shell.target.y + value / 2
+        shell.speed.height = 15 
+        shell.speed.y = 7.5
+    end,
+    LeftSide = function(shell, value)
+        shell.target.width = shell.target.width + value
+        if (shell.target.width < 16) then
+            shell.target.width = 16
+        end
+        shell.target.x = shell.target.x + value / 2
+        shell.speed.width = 15 
+        shell.speed.x = 7.5
+    end,
+    RightSide = function(shell, value)
+        shell.target.width = shell.target.width + value
+        if (shell.target.width < 16) then
+            shell.target.width = 16
+        end
+        shell.target.x = shell.target.x - value / 2
+        shell.speed.width = 15 
+        shell.speed.x = 7.5
+    end,
+
     RotateTo = function(shell, rotation)
-        shell.rotation = rotation
+        shell.target.rotation = rotation
     end,
     Destroy = function(shell)
         for i = #arenas.shells, 1, -1
@@ -116,6 +156,22 @@ function arenas.Init()
     shell.height = 130
     shell.rotation = 0
 
+    shell.target = {
+        x = 320,
+        y = 320,
+        width = 565,
+        height = 130,
+        rotation = 0
+    }
+
+    shell.speed = {
+        x = 15,
+        y = 15,
+        width = 15,
+        height = 15,
+        rotation = 15
+    }
+
     shell.white = sprites.CreateSprite("Shapes/rectangle.png", 10)
     shell.white:MoveTo(320, 320)
     shell.white:Scale((565 + 10) / 100, (130 + 10) / 100)
@@ -144,6 +200,22 @@ function arenas.NewArena(x, y, w, h, r, shape, mode)
     shell.height = h
     shell.rotation = r
 
+    shell.target = {
+        x = x,
+        y = y,
+        width = w,
+        height = h,
+        rotation = r
+    }
+
+    shell.speed = {
+        x = 15,
+        y = 15,
+        width = 15,
+        height = 15,
+        rotation = 15
+    }
+
     shell.white = sprites.CreateSprite("Shapes/" .. shape .. ".png", 10)
     shell.white:MoveTo(x, y)
     shell.white:Scale((w + 10) / 100, (h + 10) / 100)
@@ -164,16 +236,21 @@ function arenas.Update()
     do
         local shell = arenas.shells[i]
         if (shell.isactive) then
-            shell.white.x = smooth_value(shell.white.x, shell.x, 15)
-            shell.white.y = smooth_value(shell.white.y, shell.y, 15)
-            shell.white.xscale = smooth_value(shell.white.xscale, (shell.width + 10) / 100, 0.15)
-            shell.white.yscale = smooth_value(shell.white.yscale, (shell.height + 10) / 100, 0.15)
-            shell.white.rotation = smooth_value(shell.white.rotation, shell.rotation, 15)
-            shell.black.x = smooth_value(shell.black.x, shell.x, 15)
-            shell.black.y = smooth_value(shell.black.y, shell.y, 15)
-            shell.black.xscale = smooth_value(shell.black.xscale, (shell.width) / 100, 0.15)
-            shell.black.yscale = smooth_value(shell.black.yscale, (shell.height) / 100, 0.15)
-            shell.black.rotation = smooth_value(shell.black.rotation, shell.rotation, 15)
+            -- Now use the target values to update the shell's sprites
+            -- The target values are means to control the shell's position and size
+            -- Then let the sprites follow the shell's "current" values
+            shell.x = smooth_value(shell.x, shell.target.x, shell.speed.x)
+            shell.y = smooth_value(shell.y, shell.target.y, shell.speed.y)
+            shell.width = smooth_value(shell.width, shell.target.width, shell.speed.width)
+            shell.height = smooth_value(shell.height, shell.target.height, shell.speed.height)
+            shell.rotation = smooth_value(shell.rotation, shell.target.rotation, shell.speed.rotation)
+
+            shell.white:MoveTo(shell.x, shell.y)
+            shell.white:Scale((shell.width + 10) / 100, (shell.height + 10) / 100)
+            shell.white.rotation = shell.rotation
+            shell.black:MoveTo(shell.x, shell.y)
+            shell.black:Scale(shell.width / 100, shell.height / 100)
+            shell.black.rotation = shell.rotation
 
             if (shell.iscolliding) then
                 local dx, dy = battle.Player.sprite.x - shell.x, battle.Player.sprite.y - shell.y
@@ -181,54 +258,50 @@ function arenas.Update()
                 local w, h = shell.width, shell.height
                 if (shell.mode == "plus") then
                     if (shell.shape == "rectangle") then
-                        if (dx * cos + dy * sin > -w / 2 + 8 and dx * cos + dy * sin < w / 2 - 8 and
-                            dx * -sin + dy * cos > -h / 2 + 8 and dx * -sin + dy * cos < h / 2 - 8
+                        if (dx * cos + dy * sin >= -w / 2 + 8 and dx * cos + dy * sin <= w / 2 - 8 and
+                            dx * -sin + dy * cos >= -h / 2 + 8 and dx * -sin + dy * cos <= h / 2 - 8
                         ) then
                             shell.containing = true
-
-                            if (battle.Player.soulMode == 6) then
-                                local _vars = battle.Player.soul_variables.blue
-                                _vars.canjump = false
-                            end
                         else
                             shell.containing = false
-
-                            if (battle.Player.soulMode == 6) then
-                                
-                                local angle_diff = math.abs(shell.rotation - battle.Player.sprite.rotation)
-                                if (angle_diff > 180) then
-                                    angle_diff = 360 - angle_diff
-                                end
-
-                                local _vars = battle.Player.soul_variables.blue
-                                if (_vars.direction == "down") then
-                                    if (shell.rotation > -45 and shell.rotation < 45) then
-                                        _vars.canjump = true
-                                        print("canjump")
-                                    end
-                                end
-                            end
                         end
 
                         local Player = battle.Player.sprite
                         if (check_amount() < 1 and check_nearest() == shell) then
+                            local value = 0.25
+
                             -- right
                             while ((Player.x - shell.black.x) * cos + (Player.y - shell.black.y) * sin > w / 2 - 8) do
-                                Player:Move(-cos, -sin)
+                                Player:Move(value * -cos, value * -sin)
                             end
                             -- left
                             while ((Player.x - shell.black.x) * cos + (Player.y - shell.black.y) * sin < -w / 2 + 8) do
-                                Player:Move(cos, sin)
+                                Player:Move(value * cos, value * sin)
                             end
                             -- up
                             while ((Player.y - shell.black.y) * cos + (Player.x - shell.black.x) * -sin < -h / 2 + 8) do
-                                Player:Move(-sin, cos)
+                                Player:Move(value * -sin, value * cos)
                             end
                             -- down
                             while ((Player.y - shell.black.y) * cos + (Player.x - shell.black.x) * -sin > h / 2 - 8) do
-                                Player:Move(sin, -cos)
+                                Player:Move(value * sin, value * -cos)
                             end
                         end
+
+                        local targetX = (Player.x - 1 * math.sin(math.rad(Player.rotation)))
+                        local targetY = (Player.y + 1 * math.cos(math.rad(Player.rotation)))
+                        dx = targetX - shell.black.x
+                        dy = targetY - shell.black.y
+
+                        local _vars = battle.Player.soul_variables.blue
+                        if (dx * cos + dy * sin >= -w / 2 + 8 and dx * cos + dy * sin <= w / 2 - 8 and
+                            dx * -sin + dy * cos >= -h / 2 + 8 and dx * -sin + dy * cos <= h / 2 - 8
+                        ) then
+                            _vars.canjump = false
+                        else
+                            _vars.canjump = true
+                        end
+
                     elseif (shell.shape == "circle") then
                         local rx, ry = dx * cos + dy * sin, -dx * sin + dy * cos
                         local a, b = w / 2 - 8, h / 2 - 8

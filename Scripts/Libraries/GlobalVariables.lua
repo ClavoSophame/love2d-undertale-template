@@ -8,6 +8,15 @@ function globals:GetVariable(name)
     return globals[name]
 end
 
+function globals:EnsureVariable(name, value)
+    if (globals:GetVariable(name) == nil) then
+        globals:SetVariable(name, value)
+        return value
+    else
+        return globals:GetVariable(name)
+    end
+end
+
 function globals:SetSaveVariable(name, value)
     if (not love.filesystem.getInfo("save")) then
         love.filesystem.createDirectory("save")
@@ -16,7 +25,7 @@ function globals:SetSaveVariable(name, value)
     local value_str
     if (type(value) == "table") then
         local json = require("Scripts.Libraries.Utils.dkjson")
-        value_str = json.encode(value)
+        value_str = json.encode(value, {indent = true})
     else
         value_str = tostring(value)
     end
@@ -51,6 +60,15 @@ function globals:GetSaveVariable(name)
         return value
     else
         return value_str
+    end
+end
+
+function globals:EnsureSaveVariable(name, value)
+    if (globals:GetSaveVariable(name) == nil) then
+        globals:SetSaveVariable(name, value)
+        return value
+    else
+        return globals:GetSaveVariable(name)
     end
 end
 

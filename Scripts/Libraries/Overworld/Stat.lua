@@ -12,6 +12,50 @@ local stat = {
 
     statpage = nil,
     itempage = nil,
+
+    levelData = {
+        { lv = 1,  hp = 20,  at = 10,  df = 10,  nextExp = 10,    totalExp = 0     },
+        { lv = 2,  hp = 24,  at = 12,  df = 10,  nextExp = 20,    totalExp = 10    },
+        { lv = 3,  hp = 28,  at = 14,  df = 10,  nextExp = 40,    totalExp = 30    },
+        { lv = 4,  hp = 32,  at = 16,  df = 10,  nextExp = 50,    totalExp = 70    },
+        { lv = 5,  hp = 36,  at = 18,  df = 11,  nextExp = 80,    totalExp = 120   },
+        { lv = 6,  hp = 40,  at = 20,  df = 11,  nextExp = 100,   totalExp = 200   },
+        { lv = 7,  hp = 44,  at = 22,  df = 11,  nextExp = 200,   totalExp = 300   },
+        { lv = 8,  hp = 48,  at = 24,  df = 11,  nextExp = 300,   totalExp = 500   },
+        { lv = 9,  hp = 52,  at = 26,  df = 12,  nextExp = 400,   totalExp = 800   },
+        { lv = 10, hp = 56,  at = 28,  df = 12,  nextExp = 500,   totalExp = 1200  },
+        { lv = 11, hp = 60,  at = 30,  df = 12,  nextExp = 800,   totalExp = 1700  },
+        { lv = 12, hp = 64,  at = 32,  df = 12,  nextExp = 1000,  totalExp = 2500  },
+        { lv = 13, hp = 68,  at = 34,  df = 13,  nextExp = 1500,  totalExp = 3500  },
+        { lv = 14, hp = 72,  at = 36,  df = 13,  nextExp = 2000,  totalExp = 5000  },
+        { lv = 15, hp = 76,  at = 38,  df = 13,  nextExp = 3000,  totalExp = 7000  },
+        { lv = 16, hp = 80,  at = 40,  df = 13,  nextExp = 5000,  totalExp = 10000 },
+        { lv = 17, hp = 84,  at = 42,  df = 14,  nextExp = 10000, totalExp = 15000 },
+        { lv = 18, hp = 88,  at = 44,  df = 14,  nextExp = 25000, totalExp = 25000 },
+        { lv = 19, hp = 92,  at = 46,  df = 14,  nextExp = 49999, totalExp = 50000 },
+        { lv = 20, hp = 99,  at = 48,  df = 14,  nextExp = nil,   totalExp = 99999 }
+    },
+
+    getPlayerLevel = function(self, currentExp)
+        if currentExp >= 99999 then
+            return 20
+        end
+        for i = #self.levelData, 1, -1 do
+            if currentExp >= self.levelData[i].totalExp then
+                return self.levelData[i].lv
+            end
+        end
+        return 1
+    end,
+
+    getNextExp = function(self, currentLv)
+        if currentLv >= 20 then return nil end
+        return self.levelData[currentLv + 1].totalExp
+    end,
+
+    getTotalExp = function(self, currentLv)
+        return self.levelData[currentLv].totalExp
+    end
 }
 local OPENED_ARC = false
 local spidermoving = false
@@ -36,7 +80,7 @@ function encounterSpider()
     local bg = sprites.CreateSprite("bg.png", 2000000)
     bg:Scale(99, 99)
     bg:MoveTo(TPos(320, 240))
-    stat.interact = 3
+    -- oworld.CSTATE = "Controlling"
 end
 
 -- ITEMs = 335 * 350
@@ -140,15 +184,12 @@ function stat:Update(dt)
         end
         stat.heart:MoveTo(TPos(212 + (stat.initemc - 1) * 95, 378))
     end
-    if (stat.page == "STAT") then
-        
-    end
 
     if (keyboard.GetState("menu") == 1 and stat.interact == 0) then
         if (stat.page == "NONE") then
             audio.PlaySound("snd_menu_0.wav", 1)
             stat.page = "IDLE"
-            stat.interact = 1
+            oworld.CSTATE = "Stopping"
             stat.inbutton = 1
             stat.heart = sprites.CreateSprite("Soul Library Sprites/spr_default_heart.png", 10003)
             stat.heart.color = {1, 0, 0}
@@ -187,7 +228,7 @@ function stat:Update(dt)
             end
         elseif (stat.page == "IDLE") then
             stat.page = "NONE"
-            stat.interact = 0
+            oworld.CSTATE = "Controlling"
             RemoveBlocks()
         end
     end
@@ -198,7 +239,6 @@ function stat:Update(dt)
             CreateBlock(x, y, 575, 140, 0)
             local item = stat.items[stat.initem]
             stat:UseItem(item, stat.initemc)
-            stat.interact = 2
             stat.heart.alpha = 0
             stat.itempage.white:Destroy()
             stat.itempage.black:Destroy()
@@ -222,7 +262,7 @@ function stat:Update(dt)
 
                 for i = 1, #stat.items
                 do
-                    stat.temps[i] = DrawText(stat.items[i], x - 150, y - 160 + (i - 1) * 35)
+                    stat.temps[i] = DrawText(stat.items[i], x - 110, y - 160 + (i - 1) * 35)
                 end
                 stat.temps[#stat.temps + 1] = DrawText("[preset=chinese][offsetX=20]使用  查看  丢弃", x - 150, y + 130)
             elseif (stat.inbutton == 2) then -- stat page.
@@ -231,7 +271,7 @@ function stat:Update(dt)
                 stat.heart.alpha = 0
                 stat.statpage = CreateBlock(x, y, 335, 410, 0)
 
-                local atkspace, defspace = "    ", "    "
+                local atkspace, defspace = "   ", "   "
                 if (Player.atk > 9) then atkspace = atkspace:sub(1, -2) end
                 if (Player.watk > 9) then atkspace = atkspace:sub(1, -2) end
                 if (Player.def > 9) then defspace = defspace:sub(1, -2) end
@@ -240,11 +280,12 @@ function stat:Update(dt)
                 stat.temps[#stat.temps + 1] = DrawText("\"" .. Player.name .. "\"", x - 150, y - 180)
                 stat.temps[#stat.temps + 1] = DrawText("LV " .. Player.lv, x - 150, y - 120)
                 stat.temps[#stat.temps + 1] = DrawText("HP " .. Player.hp .. "/" .. Player.maxhp, x - 150, y - 90)
-                stat.temps[#stat.temps + 1] = DrawText("AT " .. Player.atk .. "(" .. Player.watk .. ")" .. atkspace .. "EXP:0", x - 150, y - 20)
-                stat.temps[#stat.temps + 1] = DrawText("DF " .. Player.def ..  "(" .. Player.edef .. ")" .. defspace .. "NEXT:10", x - 150, y + 10)
+                stat.temps[#stat.temps + 1] = DrawText("AT " .. Player.atk .. "(" .. Player.watk .. ")" .. atkspace .. "EXP:" .. Player.exp, x - 150, y - 20)
+                stat.temps[#stat.temps + 1] = DrawText("DF " .. Player.def ..  "(" .. Player.edef .. ")" .. defspace .. "NEXT:" .. (stat:getNextExp(Player.lv) or 0) - Player.exp, x - 150, y + 10)
                 stat.temps[#stat.temps + 1] = DrawText("[preset=chinese][offsetX=0]武器： " .. Player.weapon, x - 150, y + 70)
                 stat.temps[#stat.temps + 1] = DrawText("[preset=chinese][offsetX=0]防具： " .. Player.armor, x - 150, y + 100)
-                stat.temps[#stat.temps + 1] = DrawText("[preset=chinese][offsetX=0]金钱：[font=determination_mono.ttf][scale=1]" .. Player.gold, x - 150, y + 150)
+                stat.temps[#stat.temps + 1] = DrawText("[preset=chinese][offsetX=0]金钱：", x - 150, y + 150)
+                stat.temps[#stat.temps + 1] = DrawText(Player.gold, x - 65, y + 150)
             elseif (stat.inbutton == 3 and #stat.cells > 0) then
                 stat.page = "CELL"
             end
@@ -253,7 +294,7 @@ function stat:Update(dt)
     if (keyboard.GetState("cancel") == 1) then
         if (stat.page == "IDLE") then
             stat.page = "NONE"
-            stat.interact = 0
+            oworld.CSTATE = "Controlling"
             RemoveBlocks()
         elseif (stat.page == "ITEM" or stat.page == "STAT" or stat.page == "CELL") then
             stat.initem = 1
@@ -290,11 +331,10 @@ function stat:Update(dt)
 
     -- 此处为拓展区域。
     if (OPENED_ARC) then
-        stat.interact = 2
         if (keyboard.GetState("cancel") == 1) then
             OPENED_ARC = false
             stat.page = "NONE"
-            stat.interact = 0
+            oworld.CSTATE = "Controlling"
             RemoveBlocks()
         end
     end
@@ -316,6 +356,7 @@ function stat:Update(dt)
     end
 
     if (spiderencounter) then
+        oworld.CSTATE = "Stopping"
         spidertime = spidertime + 1
         if (spidertime == 60) then
             scenes.switchTo("scene_battle_spider")
@@ -325,7 +366,7 @@ end
 
 function stat:UseItem(item, choice)
     print(item, choice)
-    if (item == "[preset=chinese][offsetX=20]甜甜圈") then
+    if (item == "[preset=chinese]甜甜圈") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你吃了甜甜圈。",
@@ -347,7 +388,7 @@ function stat:UseItem(item, choice)
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
         end
-    elseif (item == "[preset=chinese][offsetX=20]神秘小礼物") then
+    elseif (item == "[preset=chinese]神秘小礼物") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你打开了神秘小礼物。",
@@ -357,7 +398,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
-            table.insert(stat.items, "[preset=chinese][offsetX=20]神秘小小礼物")
+            table.insert(stat.items, "[preset=chinese]神秘小小礼物")
         elseif (choice == 2) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你查看了神秘小礼物。",
@@ -371,7 +412,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
         end
-    elseif (item == "[preset=chinese][offsetX=20]神秘小小礼物") then
+    elseif (item == "[preset=chinese]神秘小小礼物") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你打开了神秘小小礼物。",
@@ -393,7 +434,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
         end
-    elseif (item == "[preset=chinese][offsetX=20]安黛因的信") then
+    elseif (item == "[preset=chinese]安黛因的信") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你尝试打开安黛因的信。",
@@ -414,7 +455,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
         end
-    elseif (item == "[preset=chinese][offsetX=20]铁壶") then
+    elseif (item == "[preset=chinese]铁壶") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你打开了铁壶。",
@@ -438,7 +479,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
         end
-    elseif (item == "[preset=chinese][offsetX=20]别欺负我") then
+    elseif (item == "[preset=chinese]别欺负我") then
         if  (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你打开了别欺负我纸条。",
@@ -447,7 +488,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
-            table.insert(stat.items, "[preset=chinese][offsetX=20]欺负一下")
+            table.insert(stat.items, "[preset=chinese]欺负一下")
         elseif (choice == 2) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你查看了别欺负我纸条。",
@@ -462,7 +503,7 @@ function stat:UseItem(item, choice)
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
         end
-    elseif (item == "[preset=chinese][offsetX=20]欺负一下") then
+    elseif (item == "[preset=chinese]欺负一下") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你打开了欺负一下纸条。",
@@ -484,7 +525,7 @@ function stat:UseItem(item, choice)
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
         end
-    elseif (item == "[preset=chinese][offsetX=20]传单") then
+    elseif (item == "[preset=chinese]传单") then
         if (choice == 1) then
             OPENED_ARC = true
             RemoveBlocks()
@@ -504,7 +545,7 @@ function stat:UseItem(item, choice)
                 "[noskip][function:RemoveBlocks][next]"
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
         end
-    elseif (item == "[preset=chinese][offsetX=20]吃我") then
+    elseif (item == "[preset=chinese]吃我") then
         if  (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]这么想被吃就乖乖下肚。",
@@ -526,7 +567,7 @@ function stat:UseItem(item, choice)
             }, {TPos(60, 400 - 55)}, 10004, {0, 0}, "manual")
             table.remove(stat.items, stat.initem)
         end
-    elseif (item == "[preset=chinese][offsetX=20][red]蜘蛛") then
+    elseif (item == "[preset=chinese][red]蜘蛛") then
         if (choice == 1) then
             local t = typers.CreateText({
                 "* [fontIndex:2][pattern:chinese]你从背包中拿出了[colorHEX:ff0000]蜘蛛[function:drawredSpider][colorHEX:ffffff]。",

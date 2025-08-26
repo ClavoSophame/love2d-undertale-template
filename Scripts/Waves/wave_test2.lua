@@ -24,12 +24,17 @@ local pst = typers.CreateText({
 }, {220, 80}, 200, {200, 100}, "manual")
 pst:ShowBubble("left", 0.5)
 battle.Player.sprite:MoveTo(320, 320)
+--battle.mainarena:LeftSide(-200)
+--battle.mainarena:RightSide(-200)
+--battle.mainarena:UpSide(100)
 battle.mainarena:Resize(155, 130)
-
 local mask1 = masks.New("rectangle", 320, 320, 155, 130, 30, 1)
 
 local variable = 0
+local time = 0
 function wave.update(dt)
+    time = time + 1
+
     if (stb) then
         variable = variable + 1
 

@@ -17,7 +17,7 @@ local mask = masks.New("rectangle", 320, 320, 155, 130, 0, 1)
 battle.Player.sprite:MoveTo(320, 320)
 tween.CreateTween(
     function (value)
-        battle.mainarena.width = value
+        battle.mainarena.target.width = value
     end,
     "Bounce", "Out", 565, 155, 60
 )
@@ -148,7 +148,6 @@ function wave.update(dt)
 
     if (time == 1000) then
         EndWave()
-        return
     end
 
     for i = #wave.objects, 1, -1 do

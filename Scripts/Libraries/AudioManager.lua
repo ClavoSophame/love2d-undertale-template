@@ -26,16 +26,48 @@ local functions = {
                 total = duration
             }
         end
+    end,
+    SetLoopPoints = function(instance, startTime, endTime)
+        instance.loopStart = startTime
+        instance.loopEnd = endTime
+        instance.source:setLooping(true)
+
+        if (instance.source:isPlaying()) then
+            local currentTime = instance.source:tell("seconds")
+            if (currentTime >= instance.loopEnd) then
+                instance.source:seek(instance.loopStart)
+            end
+        end
+    end,
+    SetEffect = function(instance, effect_name, params)
+        if not love.audio.getEffect then return end
+
+        if instance.effect then
+            instance.effect:release()
+            instance.effect = nil
+        end
+
+        love.audio.setEffect(effect_name, params)
+        if love.audio.setFilter then
+            instance.source:setFilter(effect_name)
+        else
+            instance.source:setEffect(effect_name)
+        end
     end
 }
 functions.__index = functions
 
 function audio.PlaySound(sound, volume, looping)
     local instance = {}
+    instance.type = "static"
     instance.source = love.audio.newSource("Resources/Sounds/" .. sound, "static")
     instance.source:setVolume(volume or 1)
     instance.source:setLooping(looping or false)
     instance.source:play()
+
+    instance.effect = nil
+    instance.loopStart = nil
+    instance.loopEnd = nil
 
     instance.time = 0
     instance.path = sound
@@ -62,10 +94,15 @@ end
 
 function audio.PlayMusic(music, volume, looping)
     local instance = {}
+    instance.type = "stream"
     instance.source = love.audio.newSource("Resources/Music/" .. music, "stream")
     instance.source:setVolume(volume or 1)
     instance.source:setLooping(looping == nil and true or looping)
     instance.source:play()
+
+    instance.effect = nil
+    instance.loopStart = nil
+    instance.loopEnd = nil
 
     instance.time = 0
     instance.duration = instance.source:getDuration("seconds")
@@ -94,22 +131,15 @@ end
 function audio.MusicPause(inst)
     if (inst.source and inst.source:isPlaying()) then
         inst.pausePosition = inst.source:tell("seconds")
-        inst.source:stop()
-        inst.source:release()
-        inst.source = nil
+        inst.source:pause()
         return true
     end
     return false
 end
 
 function audio.MusicUnpause(inst)
-    if (not inst.source and inst.pausePosition) then
-        local musicPath = inst.path
-        inst.source = love.audio.newSource(musicPath, "stream")
-        inst.source:setLooping(inst.source:isLooping() == nil and true or false)
-        inst.source:setVolume(inst.volume or 1)
-
-        inst.source:seek(inst.pausePosition)
+    if (inst.source and inst.source:isStopped()) then
+        inst.source:seek(inst.pausePosition or 0)
         inst.source:play()
         return true
     end
@@ -131,11 +161,19 @@ function audio.Update()
             inst.source:setPitch(pitch_table.begin + (pitch_table.target - pitch_table.begin) * pitch_table.duration / pitch_table.total)
         end
 
-        if (not inst.source:isLooping()) then
+        if inst.loopStart and inst.loopEnd then
+            if inst.source:isPlaying() then
+                local currentTime = inst.source:tell("seconds")
+                if currentTime >= inst.loopEnd then
+                    inst.source:seek(inst.loopStart)
+                end
+            end
+        end
+
+        if (inst.type == "static" and not inst.source:isLooping()) then
             inst.time = inst.time + love.timer.getDelta()
             if (inst.time >= inst.duration) then
                 inst.source:stop()
-                inst.source:release()
                 table.remove(audio.sources, i)
                 break
             end
@@ -148,6 +186,10 @@ function audio.ClearAll()
         local instance = audio.sources[i]
         if (instance.source) then
             instance.source:stop()
+            if instance.effect then
+                instance.effect:release()
+                instance.effect = nil
+            end
             instance.source:release()
         end
     end
